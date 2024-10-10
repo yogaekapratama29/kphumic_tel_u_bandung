@@ -15,7 +15,7 @@ TextStyle get extraBold => copyWith(fontWeight: FontWeight.w800);
 TextStyle get black => copyWith(fontWeight: FontWeight.w900);
 
 TextStyle get italic => copyWith(fontStyle: FontStyle.italic);
-TextStyle get underline => copyWith(decoration: TextDecoration.underline);
+TextStyle get underline => copyWith(decoration: TextDecoration.underline,color: AppColors.primary);
 TextStyle get ellipsis => copyWith(overflow: TextOverflow.ellipsis);
 
 TextStyle get white => copyWith(color: AppColors.white);
