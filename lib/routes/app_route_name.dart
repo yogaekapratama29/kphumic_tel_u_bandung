@@ -2,5 +2,7 @@ enum AppRouteName{
   Splashscreen,
   LoginPage,
   MainPage,
-  InfoPage,
+  OurContact,
+  PenerimaanMagang,
+  Profile,
 }
