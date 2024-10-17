@@ -24,7 +24,7 @@ class _SplashscreenState extends State<Splashscreen> {
 
   // call back router PageRoute
   void callback(){
-    context.goNamed(AppRouteName.MainPage.name);
+    context.goNamed(AppRouteName.StartedPage.name);
   }
 
   @override

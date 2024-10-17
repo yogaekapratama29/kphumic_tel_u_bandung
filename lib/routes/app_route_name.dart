@@ -5,4 +5,5 @@ enum AppRouteName{
   OurContact,
   PenerimaanMagang,
   Profile,
+  StartedPage,
 }

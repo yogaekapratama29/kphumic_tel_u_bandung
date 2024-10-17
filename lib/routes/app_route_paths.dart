@@ -4,5 +4,5 @@ class AppRoutePaths{
   static const String MainPage ="/mainpage";
   static const String OurContact="/ourcontact";
   static const String PenerimaanMagang="/penerimaanmagang";
-  static const String Profile="/profile";
+  static const String StartedPage = "/startedpage";
 }
