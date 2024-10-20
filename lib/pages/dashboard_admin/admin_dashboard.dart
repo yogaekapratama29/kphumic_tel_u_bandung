@@ -3,6 +3,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:kphumic_tel_u_bandung/pages/about_us_page.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/form_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/profile_admin.dart';
+import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/proses_pelamar.dart';
 import 'package:kphumic_tel_u_bandung/pages/our_contact.dart';
 import 'package:kphumic_tel_u_bandung/pages/penerimaan_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/profile.dart';
@@ -25,7 +26,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     {"name": "Mahasiswa D", "status": "Non", "color": "black"},
   ];
 
-  int _selectedIndex = 0; 
+  int _selectedIndex = 0;
+  String? _dropdownValue;
+  Color _dropdownColor = Colors.red; // Default color (red)
 
   void _onItemTapped(int index) {
     setState(() {
@@ -50,20 +53,32 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
+  void _onDropdownChanged(String? newValue) {
+    setState(() {
+      _dropdownValue = newValue;
+      _dropdownColor = Colors.green; // Change to green when opened
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       bottomNavigationBar: GNav(
+      bottomNavigationBar: GNav(
         activeColor: AppColors.primary,
         selectedIndex: _selectedIndex,
         onTabChange: _onItemTapped,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         iconSize: 30,
         tabs: [
-          GButton(icon: Icons.home_outlined, ),
-          GButton(icon: Icons.badge_outlined,),
-          GButton(icon: Icons.person_outline,),
+          GButton(
+            icon: Icons.home_outlined,
+          ),
+          GButton(
+            icon: Icons.badge_outlined,
+          ),
+          GButton(
+            icon: Icons.person_outline,
+          ),
         ],
       ),
       body: SafeArea(
@@ -71,16 +86,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
           scrollDirection: Axis.vertical,
           child: Column(
             children: [
-              SizedBox(
-                height: 80,
-              ),
-              Text(
-                "Dashboard",
-                style: AppFonts.display2.primary,
-              ),
-              SizedBox(
-                height: 50,
-              ),
+              SizedBox(height: 80),
+              Text("Dashboard", style: AppFonts.display2.primary),
+              SizedBox(height: 50),
               Center(
                 child: Container(
                   width: 328,
@@ -89,24 +97,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "Jumlah Pengguna",
-                        style: AppFonts.title,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "4",
-                        style: AppFonts.display2,
-                      )
+                      Text("Jumlah Pengguna", style: AppFonts.title),
+                      SizedBox(height: 10),
+                      Text("4", style: AppFonts.display2),
                     ],
                   ),
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               Center(
                 child: Container(
                   width: 328,
@@ -115,24 +113,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "Jumlah Pengguna",
-                        style: AppFonts.title,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "4",
-                        style: AppFonts.display2,
-                      )
+                      Text("Jumlah Pengguna", style: AppFonts.title),
+                      SizedBox(height: 10),
+                      Text("4", style: AppFonts.display2),
                     ],
                   ),
                 ),
               ),
-              SizedBox(
-                height: 30,
-              ),
+              SizedBox(height: 30),
               Center(
                 child: Container(
                   width: 328,
@@ -145,9 +133,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 15),
                 height: 31,
@@ -156,14 +142,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Nama Lengkap",
-                      style: AppFonts.small.white,
-                    ),
-                    Text(
-                      "Status Penerimaan",
-                      style: AppFonts.small.white,
-                    )
+                    Text("Nama Lengkap", style: AppFonts.small.white),
+                    Text("Status Penerimaan", style: AppFonts.small.white),
                   ],
                 ),
               ),
@@ -203,36 +183,47 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                           ),
                           SizedBox(width: 10),
-                          Icon(Icons.arrow_forward, color: AppColors.primary),
+                          GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProsesPelamar()));
+                              },
+                              child: Icon(Icons.arrow_forward,
+                                  color: AppColors.primary)),
                         ],
                       ),
                     ),
                   );
                 },
               ),
-              SizedBox(
-                height: 200,
-              ),
+              SizedBox(height: 20),
+
+            
+            
+              SizedBox(height: 200),
             ],
           ),
         ),
       ),
     );
   }
-}
 
-// Fungsi untuk mendapatkan warna berdasarkan status
-Color _getColor(String? color) {
-  switch (color) {
-    case "green":
-      return Colors.green;
-    case "red":
-      return AppColors.primary;
-    case "grey":
-      return Colors.grey;
-    case "black":
-      return Colors.black;
-    default:
-      return Colors.transparent;
+  // Fungsi untuk mendapatkan warna berdasarkan status
+  Color _getColor(String? color) {
+    switch (color) {
+      case "green":
+        return Colors.green;
+      case "red":
+        return AppColors.primary;
+      case "grey":
+        return Colors.grey;
+      case "black":
+        return Colors.black;
+      default:
+        return Colors.transparent;
+    }
   }
 }
