@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kphumic_tel_u_bandung/pages/login_page_admin.dart';
+import 'package:kphumic_tel_u_bandung/pages/login_page_peserta.dart';
+import 'package:kphumic_tel_u_bandung/pages/sign_up.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
@@ -26,14 +29,14 @@ class _StartedPageState extends State<StartedPage> {
               children: [
                 Text(
                   "Ayo Mulai",
-                  style: AppFonts.title.black,
+                  style: AppFonts.title,
                 ),
                 SizedBox(
                   height: 5,
                 ),
                 Text(
                   "Daftar atau Login untuk mendapatkan pengalaman yang lebih baik",
-                  style: AppFonts.body.black,
+                  style: AppFonts.body,
                   textAlign: TextAlign.center,
                 )
               ],
@@ -42,37 +45,57 @@ class _StartedPageState extends State<StartedPage> {
           SizedBox(
             height: 56,
           ),
-           Container(width: 327,height: 54,
-                margin: EdgeInsets.symmetric(vertical: 6),
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent,
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: AppColors.black),
-                    ),
-                  ),
-                  child: Text('Masuk Sebagai Peserta',style: AppFonts.body.white,),
+          Container(
+            width: 327,
+            height: 54,
+            margin: EdgeInsets.symmetric(vertical: 6),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LoginPagePeserta()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: AppColors.black),
                 ),
               ),
+              child: Text(
+                'Masuk Sebagai Peserta',
+                style: AppFonts.body.white,
+              ),
+            ),
+          ),
           SizedBox(
             height: 12,
           ),
-           Container(width: 327,height: 54,
-                margin: EdgeInsets.symmetric(vertical: 6),
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent,
-                    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: AppColors.black),
-                    ),
-                  ),
-                  child: Text('Masuk Sebagai Admin',style: AppFonts.body.white,),
+          Container(
+            width: 327,
+            height: 54,
+            margin: EdgeInsets.symmetric(vertical: 6),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LoginPageAdmin()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: AppColors.black),
                 ),
               ),
+              child: Text(
+                'Masuk Sebagai Admin',
+                style: AppFonts.body.white,
+              ),
+            ),
+          ),
           SizedBox(
             height: 24,
           ),
@@ -88,7 +111,10 @@ class _StartedPageState extends State<StartedPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('OR',style: AppFonts.body.black,),
+                  child: Text(
+                    'OR',
+                    style: AppFonts.body,
+                  ),
                 ),
                 Expanded(
                   child: Divider(
@@ -102,7 +128,15 @@ class _StartedPageState extends State<StartedPage> {
           SizedBox(
             height: 24,
           ),
-          GestureDetector(onTap: () {}, child: Text("Register",style: AppFonts.body.black,))
+          GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => SignUp()));
+              },
+              child: Text(
+                "Register",
+                style: AppFonts.body,
+              ))
         ],
       ),
     ));

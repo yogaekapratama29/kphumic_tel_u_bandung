@@ -16,59 +16,60 @@ class AboutUsPage extends StatefulWidget {
 }
 
 class _AboutUsPageState extends State<AboutUsPage> {
-  int _currentIndex = 1;
+  int _selectedIndex = 1;
 
-  final List<Color> _colors = [
-    AppColors.secondary, // index 0
-    AppColors.secondary,
-    AppColors.secondary,
-    AppColors.secondary,
-    AppColors.secondary,
-  ];
-
-  void _onTabChange(int index) {
+  void _onItemTapped(int index) {
     setState(() {
-      _currentIndex = index;
+      _selectedIndex = index;
     });
+
+    switch (index) {
+      case 0:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainPage()),
+        );
+        break;
+      case 1:
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PenerimaanMagang()),
+        );
+        break;
+       case 3 :
+       Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => OurContact()),
+        );
+        break;
+       case 4 :
+       Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         bottomNavigationBar: GNav(
-            iconSize: 30,
-            activeColor: _colors[1],
-            onTabChange: (index) {
-              switch (index) {
-                case 0:
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MainPage()));
-                  break;
-                case 1:
-                  break;
-                case 2:
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PenerimaanMagang()));
-                  break;
-                case 3:
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => OurContact()));
-                  break;
-                case 4:
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Profile()));
-                  break;
-              }
-            },
-            tabs: [
-              GButton(icon: Icons.home_outlined),
-              GButton(icon: Icons.info_outline,iconActiveColor: AppColors.primary,),
-              GButton(icon: Icons.badge_outlined),
-              GButton(icon: Icons.call_outlined),
-              GButton(icon: Icons.person_outline),
-            ]),
+          activeColor: AppColors.primary,
+          selectedIndex: _selectedIndex,
+          onTabChange: _onItemTapped,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          iconSize: 30,
+          tabs: [
+            GButton(icon: Icons.home_outlined),
+            GButton(icon: Icons.info_outline),
+            GButton(icon: Icons.badge_outlined),
+            GButton(icon: Icons.call_outlined),
+            GButton(icon: Icons.person_outline),
+          ],
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -316,4 +317,3 @@ class _AboutUsPageState extends State<AboutUsPage> {
         ));
   }
 }
-

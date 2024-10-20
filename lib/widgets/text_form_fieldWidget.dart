@@ -10,7 +10,7 @@ class formValidators
   // Validasi Full Name
   static String? validateFullName (String? value){
   if(value == null || value.isEmpty){
-    return "Please enter your name";
+    return "Please enter your Full Name";
   }
   // RegExp(Regular Expresion) = pattern String mengecek karakter secara berurutan
   if(RegExp(r"[0-9]").hasMatch(value)){
@@ -21,7 +21,7 @@ class formValidators
 // Validasi Email
   static String? validateEmail(String? value){
     if(value == null || value.isEmpty){
-      return "Please enter your email";
+      return "Please enter your Email";
     }
     // Regular Expression untuk karakter
     if(!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)){
@@ -32,10 +32,39 @@ class formValidators
 // Validasi Password
   static String? validatePassword(String? value){
     if(value == null || value.isEmpty){
-      return "Please enter your password";
+      return "Please enter your Password";
     }
     if(value.length < 8){
       return "Password must be at least 8 characters";
+    }
+    return null;
+  }
+
+// Validasi NIM
+    static String? validateNIM(String? value){
+    if(value == null || value.isEmpty){
+      return "Please enter your NIM (Student ID)";
+    }
+    if(value.length < 10){
+      return "NIM (Student ID) must be at least 10 characters";
+    }
+    return null;
+  }
+
+// Validasi Prodi
+    static String? validateProdi(String? value){
+    if(value == null || value.isEmpty){
+      return "Please enter your Program Studi (Major)";
+    }
+    return null;
+  }
+// Validasi No Handphone
+static String? validateNoWa(String? value){
+    if(value == null || value.isEmpty){
+      return "Please enter your Nomor Handphone (nomor WA)";
+    }
+    if(value.length < 7){
+      return "Nomor Handphone must be at least 7 digits";
     }
     return null;
   }
@@ -73,20 +102,20 @@ class TextFormFieldwidget extends StatelessWidget {
       textInputAction: textInputAction,
       decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: AppFonts.body.gray2,
+          hintStyle: AppFonts.body,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: AppColors.accent),
           ),
           // Border Fokus
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(
-                color: AppColors.primary,
+                color: AppColors.secondary,
               )),
           // Border Fokus Error
           focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(
                 color: AppColors.primary,
               )),

@@ -21,7 +21,7 @@ class ContentMagang extends StatelessWidget {
                   Container(
                     width: 96,
                     height: 96,
-                    child: Image.asset("assets/analogi.png"),
+                    child: Image.asset("assets/magang.png"),
                   ),
                   SizedBox(
                     height: 10,

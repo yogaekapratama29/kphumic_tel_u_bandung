@@ -8,57 +8,68 @@ import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
-class OurContact extends StatelessWidget {
-  int _currentIndex = 3;
+class OurContact extends StatefulWidget {
+  OurContact({super.key});
 
-  final List<Color> _colors = [
-    AppColors.secondary, // index 0
-    AppColors.secondary,
-    AppColors.secondary,
-    AppColors.secondary,
-    AppColors.secondary,
-  ];
+  @override
+  State<OurContact> createState() => _OurContactState();
+}
 
- 
-   OurContact({super.key});
+class _OurContactState extends State<OurContact> {
+  int _selectedIndex = 3;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainPage()),
+        );
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AboutUsPage()),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PenerimaanMagang()),
+        );
+        break;
+      case 3:
+        break;
+      case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(bottomNavigationBar: GNav(
-            iconSize: 30,
-            activeColor: _colors[1],
-            onTabChange: (index) {
-              switch (index) {
-                case 0:
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MainPage()));
-                  break;
-                case 1:
-                Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AboutUsPage()));
-                  break;
-                case 2:
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PenerimaanMagang()));
-                  break;
-                case 3:
-                  
-                  break;
-                case 4:
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Profile()));
-                  break;
-              }
-            },
-            tabs: [
-              GButton(icon: Icons.home_outlined),
-              GButton(icon: Icons.info_outline,iconActiveColor: AppColors.primary,),
-              GButton(icon: Icons.badge_outlined),
-              GButton(icon: Icons.call_outlined),
-              GButton(icon: Icons.person_outline),
-            ]),
+    return Scaffold(
+      bottomNavigationBar: GNav(
+        activeColor: AppColors.primary,
+        selectedIndex: _selectedIndex,
+        onTabChange: _onItemTapped,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        iconSize: 30,
+        tabs: [
+          GButton(icon: Icons.home_outlined),
+          GButton(icon: Icons.info_outline),
+          GButton(icon: Icons.badge_outlined),
+          GButton(icon: Icons.call_outlined),
+          GButton(icon: Icons.person_outline),
+        ],
+      ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: SafeArea(
@@ -288,8 +299,19 @@ class OurContact extends StatelessWidget {
             SizedBox(
               height: 50,
             ),
-            Container(width: 308,height: 290,decoration: BoxDecoration(border: Border.all(color: AppColors.primary,strokeAlign: BorderSide.strokeAlignOutside,width: 5)),child: Image.asset("assets/qr.png"),),
-            SizedBox(height: 100,)
+            Container(
+              width: 308,
+              height: 290,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      color: AppColors.primary,
+                      strokeAlign: BorderSide.strokeAlignOutside,
+                      width: 5)),
+              child: Image.asset("assets/qr.png"),
+            ),
+            SizedBox(
+              height: 100,
+            )
           ],
         )),
       ),

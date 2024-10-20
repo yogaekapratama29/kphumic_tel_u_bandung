@@ -22,4 +22,6 @@ class AppFonts{
     fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black);
   static TextStyle small = GoogleFonts.workSans(
     fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black);
+    static TextStyle inter = GoogleFonts.inter(
+    fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black);
 }

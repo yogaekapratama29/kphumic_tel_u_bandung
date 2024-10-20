@@ -23,4 +23,5 @@ TextStyle get gray => copyWith(color: AppColors.grayColor);
 TextStyle get gray2 => copyWith(color: AppColors.gray2Color);
 TextStyle get primary => copyWith(color: AppColors.primary);
 TextStyle get secondary => copyWith(color: AppColors.secondary);
+TextStyle get accent => copyWith(color: AppColors.accent);
 }
