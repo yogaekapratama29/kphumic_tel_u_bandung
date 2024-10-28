@@ -316,8 +316,8 @@ void _showSuccessDialog(BuildContext context) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                                "Gagal menyimpan data. Pastikan semua field terisi."),
-                            backgroundColor: Colors.red,
+                                "Gagal menyimpan data. Pastikan semua data terisi"),
+                            backgroundColor: AppColors.primary,
                           ),
                         );
                       } else {

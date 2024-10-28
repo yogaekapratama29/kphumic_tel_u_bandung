@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
@@ -9,8 +10,38 @@ class TambahFormMagang extends StatefulWidget {
 }
 
 class _TambahFormMagangState extends State<TambahFormMagang> {
-  String? _status = 'Dibuka'; 
-  Color _statusColor = Colors.green; // tidak digunakan belum cocok
+  String? _status = 'Dibuka';
+  Color _statusColor = Colors.green;
+
+  // Controller 
+  TextEditingController _namaPosisiController = TextEditingController();
+  TextEditingController _deskripsiPosisiController = TextEditingController();
+  TextEditingController _startDateController = TextEditingController();
+  TextEditingController _endDateController = TextEditingController();
+
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+
+  Future<void> _selectDate(BuildContext context, bool isStart) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = picked;
+          _startDateController.text = DateFormat('dd/MM/yyyy').format(picked);
+        } else {
+          _endDate = picked;
+          _endDateController.text = DateFormat('dd/MM/yyyy').format(picked);
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,35 +76,53 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
                   ),
                 ),
                 SizedBox(height: 16),
-                Text("Posisi",style: AppFonts.body,),
-                SizedBox(height: 10,),
+                Text("Posisi", style: AppFonts.body),
+                SizedBox(height: 10),
                 TextFormField(
+                  controller: _namaPosisiController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
-                  initialValue: 'Front end',
+                 
                 ),
                 SizedBox(height: 16),
-                Text("Deskripsi",style: AppFonts.body,),
-                SizedBox(height: 10,),
+                Text("Deskripsi", style: AppFonts.body),
+                SizedBox(height: 10),
                 TextFormField(
+                  controller: _deskripsiPosisiController,
                   maxLines: 5,
                   decoration: InputDecoration(
-
                     border: OutlineInputBorder(),
                   ),
-                  initialValue:
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                  
                 ),
                 SizedBox(height: 16),
-                Text("Status Magang",style: AppFonts.body,),
-                SizedBox(height: 10,),
+                Text("Periode", style: AppFonts.body),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildDateField(
+                          label: 'From',
+                          controller: _startDateController,
+                          onTap: () => _selectDate(context, true)),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: _buildDateField(
+                          label: 'To',
+                          controller: _endDateController,
+                          onTap: () => _selectDate(context, false)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                Text("Status Magang", style: AppFonts.body),
+                SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   value: _status,
                   decoration: InputDecoration(
-
                     border: OutlineInputBorder(),
-                    
                   ),
                   items: <String>['Dibuka', 'Ditutup'].map((String value) {
                     return DropdownMenuItem<String>(
@@ -109,7 +158,9 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        _saveForm();
+                      },
                       child: Container(
                         alignment: Alignment.center,
                         width: 129,
@@ -125,9 +176,7 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 50,
-                ),
+                SizedBox(height: 50),
                 GestureDetector(
                   onTap: () {},
                   child: Center(
@@ -152,4 +201,65 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
       ),
     );
   }
+
+  // fungsi untuk data picker
+  Widget _buildDateField(
+      {required String label,
+      required TextEditingController controller,
+      required Function onTap}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppFonts.body),
+        SizedBox(height: 5),
+        TextFormField(
+          controller: controller,
+          readOnly: true,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            suffixIcon: Icon(Icons.calendar_today),
+          ),
+          onTap: () => onTap(),
+        ),
+      ],
+    );
+  }
+
+  // untuk save data ke container yg baru
+  void _saveForm() {
+    if (_startDate != null && _endDate != null) {
+      Map<String, dynamic> newMagang = {
+        "name": _namaPosisiController.text,  
+        "description": _deskripsiPosisiController.text,  
+        "status": _status,
+        "color": _status == 'Dibuka' ? "green" : "red",
+        "startDate": _startDate,  
+        "endDate": _endDate,     
+      };
+      Navigator.pop(context, newMagang);
+    } else {
+    
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("Silakan pilih periode mulai dan akhir."),
+            actions: [
+              TextButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 }
+
+
+
+

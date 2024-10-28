@@ -1,12 +1,12 @@
-// ...imports
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:intl/intl.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/admin_dashboard.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/profile_admin.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/tambah_form_magang.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart'; // import file form magang baru
+import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
 class FormMagang extends StatefulWidget {
   const FormMagang({super.key});
@@ -15,15 +15,61 @@ class FormMagang extends StatefulWidget {
   State<FormMagang> createState() => _FormMagangState();
 }
 
-class _FormMagangState extends State<FormMagang> {
-  final List<Map<String, String>> posisi = [
-    {"name": "Frontend", "status": "Dibuka", "color": "green"},
-    {"name": "Backend", "status": "Ditutup", "color": "red"},
-    {"name": "Mobile", "status": "Dibuka", "color": "green"},
-    {"name": "UI/UX", "status": "Dibuka", "color": "green"},
+  class _FormMagangState extends State<FormMagang> {
+  final List<Map<String, dynamic>> posisi = [
+    {
+      "name": "Frontend",
+      "description": "Membuat Tampilan Website",
+      "status": "Dibuka",
+      "color": "green",
+      "endDate": DateTime(2024, 12, 31)
+    },
+    {
+      "name": "Backend",
+      "description": "Implementasi logic di Server",
+      "status": "Ditutup",
+      "color": "red",
+      "endDate": DateTime(2023, 10, 20)
+    },
+    {
+      "name": "Mobile",
+      "description": "Membuat mobile aplikasi",
+      "status": "Dibuka",
+      "color": "green",
+      "endDate": DateTime(2024, 11, 30)
+    },
+    {
+      "name": "UI/UX",
+      "description": "Mendesain Design interface",
+      "status": "Dibuka",
+      "color": "green",
+      "endDate": DateTime(2024, 12, 10)
+    },
   ];
 
-  int _selectedIndex = 1; 
+  int _selectedIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkStatus();
+  }
+
+  // Fungsi untuk memeriksa tanggal dan memperbarui status
+  void _checkStatus() {
+    DateTime now = DateTime.now();
+    setState(() {
+      for (var item in posisi) {
+        if (item['endDate'].isBefore(now)) {
+          item['status'] = "Ditutup";
+          item['color'] = "red";
+        } else {
+          item['status'] = "Dibuka";
+          item['color'] = "green";
+        }
+      }
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -48,12 +94,18 @@ class _FormMagangState extends State<FormMagang> {
     }
   }
 
-  // Ganti fungsi ini untuk navigasi ke halaman baru
-  void _navigateToTambahFormMagang() {
-    Navigator.push(
+  
+  Future<void> _navigateToTambahFormMagang() async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => TambahFormMagang()),
     );
+
+    if (result != null && result is Map<String, dynamic>) {
+      setState(() {
+        posisi.add(result);
+      });
+    }
   }
 
   @override
@@ -73,7 +125,6 @@ class _FormMagangState extends State<FormMagang> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
           child: Column(
             children: [
               SizedBox(height: 80),
@@ -112,37 +163,48 @@ class _FormMagangState extends State<FormMagang> {
                 itemBuilder: (context, index) {
                   return Container(
                     margin: EdgeInsets.symmetric(vertical: 8, horizontal: 40),
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: ListTile(
-                      title: Text(
-                        posisi[index]["name"] ?? "",
-                        style: AppFonts.body2,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 96,
-                            height: 27,
-                            padding:
-                                EdgeInsets.symmetric(vertical: 0, horizontal: 13),
-                            decoration: BoxDecoration(
-                              color: _getColorStatus(posisi[index]["color"]),
-                              borderRadius: BorderRadius.circular(30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          posisi[index]["name"] ?? "",
+                          style: AppFonts.body2,
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          posisi[index]["description"] ?? "",
+                          style: AppFonts.body,
+                        ),
+                        SizedBox(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Periode: ${DateFormat('dd/MM/yyyy').format(posisi[index]['endDate'])}",
+                              style: AppFonts.small,
                             ),
-                            child: Text(
-                              posisi[index]["status"] ?? "",
-                              style: AppFonts.body2.white,
-                              textAlign: TextAlign.center,
+                            Container(
+                              width: 96,
+                              height: 27,
+                              padding: EdgeInsets.symmetric(horizontal: 13),
+                              decoration: BoxDecoration(
+                                color: _getColorStatus(posisi[index]["color"]),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Text(
+                                posisi[index]["status"] ?? "",
+                                style: AppFonts.body2.white,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Icon(Icons.arrow_forward, color: AppColors.primary),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
                   );
                 },
@@ -150,7 +212,7 @@ class _FormMagangState extends State<FormMagang> {
               SizedBox(height: 50),
               GestureDetector(
                 onTap: () {
-                  _navigateToTambahFormMagang(); // Pindah ke halaman Tambah Form
+                  _navigateToTambahFormMagang(); 
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 40),
@@ -191,3 +253,4 @@ class _FormMagangState extends State<FormMagang> {
     }
   }
 }
+

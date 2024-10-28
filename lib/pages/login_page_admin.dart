@@ -47,7 +47,7 @@ void _submitform() {
 }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(appBar: AppBar(backgroundColor: AppColors.white,),
       body: SafeArea(
           child: SingleChildScrollView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

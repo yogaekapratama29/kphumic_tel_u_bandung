@@ -58,7 +58,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(appBar: AppBar(backgroundColor: AppColors.white,),
       backgroundColor: AppColors.white,
       body: SafeArea(
           child: SingleChildScrollView(

@@ -27,50 +27,51 @@ class _PenerimaanMagangState extends State<PenerimaanMagang> {
 
     switch (index) {
       case 0:
-       Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => MainPage()),
         );
         break;
       case 1:
-      Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => AboutUsPage()),
         );
         break;
       case 2:
-       
         break;
-      case 3 :
-       Navigator.push(
+      case 3:
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => OurContact()),
         );
         break;
-       case 4 :
-       Navigator.push(
+      case 4:
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Profile()),
         );
         break;
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     bottomNavigationBar: GNav(
-          activeColor: AppColors.primary,
-          selectedIndex: _selectedIndex,
-          onTabChange: _onItemTapped,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          iconSize: 30,
-          tabs: [
-            GButton(icon: Icons.home_outlined),
-            GButton(icon: Icons.info_outline),
-            GButton(icon: Icons.badge_outlined),
-            GButton(icon: Icons.call_outlined),
-            GButton(icon: Icons.person_outline),
-          ],),
+      bottomNavigationBar: GNav(
+        activeColor: AppColors.primary,
+        selectedIndex: _selectedIndex,
+        onTabChange: _onItemTapped,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        iconSize: 30,
+        tabs: [
+          GButton(icon: Icons.home_outlined),
+          GButton(icon: Icons.info_outline),
+          GButton(icon: Icons.badge_outlined),
+          GButton(icon: Icons.call_outlined),
+          GButton(icon: Icons.person_outline),
+        ],
+      ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Column(
@@ -94,7 +95,7 @@ class _PenerimaanMagangState extends State<PenerimaanMagang> {
               ),
               Column(
                 children: [
-                  Row(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       // Konten 1
@@ -106,32 +107,33 @@ class _PenerimaanMagangState extends State<PenerimaanMagang> {
                                     builder: (context) => Magang1()));
                           },
                           child: ContentMagang()),
-                      // Konten 2
-                      ContentMagang(),
+                      SizedBox(height: 10,),
+                      // Konten 2 
+                       GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Magang1()));
+                          },
+                          child: ContentMagang()),
+                      SizedBox(height: 10,),
+                      // Konten 3
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Magang1()));
+                          },
+                          child: ContentMagang()),
                     ],
                   ),
                   SizedBox(
                     height: 20,
                   ),
                   //
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ContentMagang(),
-                      ContentMagang(),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  //
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ContentMagang(),
-                      ContentMagang(),
-                    ],
-                  ),
+
                   SizedBox(
                     height: 100,
                   ),
