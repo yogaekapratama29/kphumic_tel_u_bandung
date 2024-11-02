@@ -5,6 +5,8 @@ import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 import 'package:kphumic_tel_u_bandung/widgets/text_form_fieldWidget.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -17,8 +19,9 @@ class _SignUpState extends State<SignUp> {
   final _formkey = GlobalKey<FormState>();
   final _fullnameController = TextEditingController();
   final _nimController = TextEditingController();
+  final _perguruanTinggiController = TextEditingController();
   final _prodiController = TextEditingController();
-  final _nomerWAController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obsureText = true;
@@ -28,33 +31,67 @@ class _SignUpState extends State<SignUp> {
     _fullnameController.dispose();
     _nimController.dispose();
     _prodiController.dispose();
-    _nomerWAController.dispose();
+    _phoneNumberController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _perguruanTinggiController.dispose();
     super.dispose();
   }
 
-  void _submitform() {
-    if (_formkey.currentState?.validate() ?? false) {
-      final fullName = _fullnameController;
-      final nim = _nimController;
-      final prodi = _prodiController;
-      final nomerWA = _nomerWAController;
-      final email = _emailController;
-      final password = _passwordController;
+ void _submitform() async {
+  if (_formkey.currentState?.validate() ?? false) {
+    final fullName = _fullnameController.text;
+    final nim = _nimController.text;
+    final perguruan_tinggi = _perguruanTinggiController.text;
+    final prodi = _prodiController.text;
+    final phone_number = _phoneNumberController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    // Membuat body dari request
+    final requestBody = {
+      "full_name": fullName,
+      "nim": nim,
+      "perguruan_tinggi" : perguruan_tinggi,
+      "prodi": prodi,
+      "phone_number": phone_number,
+      "email": email,
+      "password": password,
+    };
 
-      debugPrint("Form is Valid");
-      debugPrint("Full Name : $fullName");
-      debugPrint("NIM : $nim");
-      debugPrint("Prodi : $prodi");
-      debugPrint("Nomer Wa : $nomerWA");
-      debugPrint("Email Address : $email");
-      debugPrint("Password : $password");
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPagePeserta()));
-    } else {
-      debugPrint("Form is Invalid");
+    try {
+      // Lakukan POST request ke endpoint register
+      final response = await http.post(
+        Uri.parse('https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/register'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint("fullname ${fullName}");
+      
+      
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == "Success") {
+          debugPrint("User successfully registered");
+          
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPagePeserta()),
+          );
+        } else {
+          debugPrint("Registration failed: ${responseData['message']}");
+        }
+      } else {
+        debugPrint("Server error: ${response.statusCode}");
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
     }
+  } else {
+    debugPrint("Form is Invalid");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +141,15 @@ class _SignUpState extends State<SignUp> {
                         textInputAction: TextInputAction.next,
                         validator: formValidators.validateNIM,
                       ),
+                       SizedBox(
+                        height: 10,
+                      ),
+                      TextFormFieldwidget(
+                        hintText: "Perguruan Tinggi",
+                        controller: _perguruanTinggiController,
+                        textInputAction: TextInputAction.next,
+                        validator: formValidators.validatePerguruanTinggi,
+                      ),
                       SizedBox(
                         height: 10,
                       ),
@@ -118,7 +164,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                       TextFormFieldwidget(
                         hintText: "Nomor Handphone (WhatsApp)",
-                        controller: _nomerWAController,
+                        controller: _phoneNumberController,
                         textInputAction: TextInputAction.next,
                         validator: formValidators.validateNoWa,
                       ),

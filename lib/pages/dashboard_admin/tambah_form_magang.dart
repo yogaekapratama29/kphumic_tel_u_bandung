@@ -45,7 +45,7 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(backgroundColor: AppColors.white,
       appBar: AppBar(),
       body: SafeArea(
         child: SingleChildScrollView(

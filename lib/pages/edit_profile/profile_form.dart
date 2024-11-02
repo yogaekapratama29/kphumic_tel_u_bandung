@@ -79,8 +79,8 @@ void _showSuccessDialog(BuildContext context) {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
+    return Scaffold(backgroundColor: AppColors.white,
+      appBar: AppBar(backgroundColor: AppColors.white,),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

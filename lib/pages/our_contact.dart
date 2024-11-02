@@ -55,7 +55,7 @@ class _OurContactState extends State<OurContact> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(backgroundColor: AppColors.white,
       bottomNavigationBar: GNav(
         activeColor: AppColors.primary,
         selectedIndex: _selectedIndex,
@@ -64,7 +64,7 @@ class _OurContactState extends State<OurContact> {
         iconSize: 30,
         tabs: [
           GButton(icon: Icons.home_outlined),
-          GButton(icon: Icons.info_outline),
+          GButton(icon: Icons.groups_2_outlined),
           GButton(icon: Icons.badge_outlined),
           GButton(icon: Icons.call_outlined),
           GButton(icon: Icons.person_outline),

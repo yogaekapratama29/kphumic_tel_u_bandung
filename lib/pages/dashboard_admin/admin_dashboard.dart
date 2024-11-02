@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:kphumic_tel_u_bandung/pages/about_us_page.dart';
+import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/batch_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/form_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/profile_admin.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/proses_pelamar.dart';
@@ -41,10 +42,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FormMagang()),
+          MaterialPageRoute(builder: (context) => BatchMagang()),
         );
         break;
       case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FormMagang()),
+        );
+        break;
+      case 3:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => ProfileAdmin()),
@@ -56,13 +63,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void _onDropdownChanged(String? newValue) {
     setState(() {
       _dropdownValue = newValue;
-      _dropdownColor = Colors.green; // Change to green when opened
+      _dropdownColor = Colors.green; 
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(backgroundColor: AppColors.white,
       bottomNavigationBar: GNav(
         activeColor: AppColors.primary,
         selectedIndex: _selectedIndex,
@@ -72,6 +79,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
         tabs: [
           GButton(
             icon: Icons.home_outlined,
+          ),
+          GButton(
+            icon: Icons.date_range_outlined,
           ),
           GButton(
             icon: Icons.badge_outlined,
@@ -188,8 +198,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProsesPelamar()));
+                                        builder: (context) => ProsesPelamar()));
                               },
                               child: Icon(Icons.arrow_forward,
                                   color: AppColors.primary)),
@@ -201,8 +210,30 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               SizedBox(height: 20),
 
-            
-            
+              GestureDetector(
+                onTap: () {},
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40),
+                    child: Container(
+                      padding: EdgeInsets.only(),
+                      height: 40,
+                      width: 154,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(5)),
+                      child: Text(
+                        "Download PDF",
+                        style: AppFonts.body.white,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
               SizedBox(height: 200),
             ],
           ),

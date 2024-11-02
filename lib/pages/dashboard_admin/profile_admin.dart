@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/admin_dashboard.dart';
+import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/batch_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/form_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/profile.dart';
 import 'package:kphumic_tel_u_bandung/pages/started_page.dart';
@@ -16,16 +17,16 @@ class ProfileAdmin extends StatefulWidget {
 }
 
 class _ProfileAdminState extends State<ProfileAdmin> {
-int _selectedIndex = 2; 
+int _selectedIndex = 3; 
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
 
-    switch (index) {
+   switch (index) {
       case 0:
-       Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => AdminDashboard()),
         );
@@ -33,16 +34,23 @@ int _selectedIndex = 2;
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FormMagang()),
+          MaterialPageRoute(builder: (context) => BatchMagang()),
         );
         break;
       case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FormMagang()),
+        );
+        break;
+      case 3:
+      
         break;
     }
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(backgroundColor: AppColors.white,
       bottomNavigationBar: GNav(
         activeColor: AppColors.primary,
         selectedIndex: _selectedIndex,
@@ -51,6 +59,9 @@ int _selectedIndex = 2;
         iconSize: 30,
         tabs: [
           GButton(icon: Icons.home_outlined, ),
+           GButton(
+            icon: Icons.date_range_outlined,
+          ),
           GButton(icon: Icons.badge_outlined,),
           GButton(icon: Icons.person_outline,),
         ],

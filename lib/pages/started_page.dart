@@ -16,7 +16,7 @@ class StartedPage extends StatefulWidget {
 class _StartedPageState extends State<StartedPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(backgroundColor: AppColors.white,
         body: SafeArea(
       child: Column(
         children: [

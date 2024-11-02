@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
+
 
 
 // Class untuk Validator nya
@@ -47,6 +47,14 @@ class formValidators
     }
     if(value.length < 10){
       return "NIM (Student ID) must be at least 10 characters";
+    }
+    return null;
+  }
+
+// Validasi Perguruan Tinggi
+    static String? validatePerguruanTinggi(String? value){
+    if(value == null || value.isEmpty){
+      return "Please enter your University";
     }
     return null;
   }
