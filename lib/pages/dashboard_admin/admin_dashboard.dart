@@ -5,12 +5,13 @@ import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/batch_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/form_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/profile_admin.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/proses_pelamar.dart';
-import 'package:kphumic_tel_u_bandung/pages/our_contact.dart';
-import 'package:kphumic_tel_u_bandung/pages/penerimaan_magang.dart';
-import 'package:kphumic_tel_u_bandung/pages/profile.dart';
+import 'package:kphumic_tel_u_bandung/pages/login_page_admin.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -20,6 +21,30 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  
+  void _checkToken() async {
+      final storage = new FlutterSecureStorage();
+      try {
+        String? token = await storage.read(key: "authToken");
+        if(token == null){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPageAdmin()));
+        }
+        final response = await http.get(
+          Uri.parse(
+              'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/verify-token'),
+          headers: {"Authorization": "Bearer ${token}"},
+        );
+
+        debugPrint("status code ${response.statusCode}");
+        if (response.statusCode != 200) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPageAdmin()));
+        }
+        }catch(error){
+          debugPrint("Error");
+        }
+    }
+  
+
   final List<Map<String, String>> students = [
     {"name": "Mahasiswa A", "status": "Lulus", "color": "green"},
     {"name": "Mahasiswa B", "status": "Gagal", "color": "red"},

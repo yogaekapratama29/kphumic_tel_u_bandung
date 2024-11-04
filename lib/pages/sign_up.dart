@@ -38,64 +38,68 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
- void _submitform() async {
-  if (_formkey.currentState?.validate() ?? false) {
-    final fullName = _fullnameController.text;
-    final nim = _nimController.text;
-    final perguruan_tinggi = _perguruanTinggiController.text;
-    final prodi = _prodiController.text;
-    final phone_number = _phoneNumberController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    // Membuat body dari request
-    final requestBody = {
-      "full_name": fullName,
-      "nim": nim,
-      "perguruan_tinggi" : perguruan_tinggi,
-      "prodi": prodi,
-      "phone_number": phone_number,
-      "email": email,
-      "password": password,
-    };
+  void _submitform() async {
+    if (_formkey.currentState?.validate() ?? false) {
+      final fullName = _fullnameController.text;
+      final nim = _nimController.text;
+      final perguruan_tinggi = _perguruanTinggiController.text;
+      final prodi = _prodiController.text;
+      final phone_number = _phoneNumberController.text;
+      final email = _emailController.text;
+      final password = _passwordController.text;
+      // Membuat body dari request
+      final requestBody = {
+        "full_name": fullName,
+        "nim": nim,
+        "perguruan_tinggi": perguruan_tinggi,
+        "prodi": prodi,
+        "phone_number": phone_number,
+        "email": email,
+        "password": password,
+      };
 
-    try {
-      // Lakukan POST request ke endpoint register
-      final response = await http.post(
-        Uri.parse('https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/register'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(requestBody),
-      );
+      try {
+        // Lakukan POST request ke endpoint register
+        final response = await http.post(
+          Uri.parse(
+              'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/register'),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(requestBody),
+        );
 
-      debugPrint("fullname ${fullName}");
-      
-      
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        if (responseData['status'] == "Success") {
-          debugPrint("User successfully registered");
-          
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPagePeserta()),
-          );
+        debugPrint("fullname ${fullName}");
+        debugPrint("status code ${response.statusCode}");
+        if (response.statusCode == 201) {
+          final responseData = jsonDecode(response.body);
+          if (responseData['status'] == "Success") {
+            debugPrint("User successfully registered");
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPagePeserta()),
+            );
+          } else {
+            debugPrint("Registration failed: ${responseData['message']}");
+          }
         } else {
-          debugPrint("Registration failed: ${responseData['message']}");
+          final errorData = jsonDecode(response.body);
+          debugPrint("Server error: ${response.statusCode}");
+          debugPrint("Error message: ${errorData['message']}");
         }
-      } else {
-        debugPrint("Server error: ${response.statusCode}");
+      } catch (e) {
+        debugPrint("Error: $e");
       }
-    } catch (e) {
-      debugPrint("Error: $e");
+    } else {
+      debugPrint("Form is Invalid");
     }
-  } else {
-    debugPrint("Form is Invalid");
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(backgroundColor: AppColors.white,),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+      ),
       backgroundColor: AppColors.white,
       body: SafeArea(
           child: SingleChildScrollView(
@@ -141,7 +145,7 @@ class _SignUpState extends State<SignUp> {
                         textInputAction: TextInputAction.next,
                         validator: formValidators.validateNIM,
                       ),
-                       SizedBox(
+                      SizedBox(
                         height: 10,
                       ),
                       TextFormFieldwidget(
@@ -189,7 +193,8 @@ class _SignUpState extends State<SignUp> {
                               _obsureText = !_obsureText;
                             });
                           },
-                          child: Icon(size: 20,
+                          child: Icon(
+                            size: 20,
                             _obsureText
                                 ? Icons.visibility_off
                                 : Icons.visibility,

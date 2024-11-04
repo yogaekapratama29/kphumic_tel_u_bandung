@@ -5,6 +5,8 @@ import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 import 'package:kphumic_tel_u_bandung/widgets/text_form_fieldWidget.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPagePeserta extends StatefulWidget {
   const LoginPagePeserta({super.key});
@@ -26,22 +28,49 @@ class _LoginPagePesertaState extends State<LoginPagePeserta> {
     _passwordController.dispose();
   }
 
-  void _submitform() {
+  void _submitform() async {
     if (_formkey.currentState?.validate() ?? false) {
-      final email = _emailController;
-      final password = _passwordController;
+      final email = _emailController.text;
+      final password = _passwordController.text;
+      // Membuat body dari request
+      final requestBody = {
+        "email": email,
+        "password": password,
+      };
 
-      debugPrint("Form is Valid, Process sign in");
-      debugPrint("Email : ${_emailController.text}");
-      debugPrint("Password ${_passwordController.text}");
-      debugPrint("Remember Me ${_rememberme}");
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => MainPage()));
+      try {
+        final response = await http.post(
+          Uri.parse(
+              'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/login'),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(requestBody),
+        );
+
+        debugPrint("status code ${response.statusCode}");
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          if (responseData['status'] == "Success") {
+            debugPrint("User successfully registered");
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MainPage()),
+            );
+          } else {
+            debugPrint("Registration failed: ${responseData['message']}");
+          }
+        } else {
+          final errorData = jsonDecode(response.body);
+          debugPrint("Server error: ${response.statusCode}");
+          debugPrint("Error message: ${errorData['message']}");
+        }
+      } catch (e) {
+        debugPrint("Error: $e");
+      }
     } else {
       debugPrint("Form is Invalid");
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(backgroundColor: AppColors.white,appBar: AppBar(backgroundColor: AppColors.white,),
