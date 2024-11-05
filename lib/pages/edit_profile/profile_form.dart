@@ -1,4 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kphumic_tel_u_bandung/pages/profile.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
@@ -23,71 +29,190 @@ class _ProfileFormState extends State<ProfileForm> {
   final _cvController = TextEditingController();
   final _portfolioController = TextEditingController();
 
-// Function success dialog
-void _showSuccessDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        content: Container(
-          height: 150,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-             
-              Icon(
-                Icons.check_circle_outline,
-                size: 50,
-                color: Colors.blueAccent, 
-              ),
-              SizedBox(height: 10),
+  // File variables
+  File? _profilePicture;
+  File? _cvFile;
+  File? _portfolioFile;
 
-              // Success Message
-              Text(
-                'Berhasil Disimpan',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              SizedBox(height: 20),
+  Future<void> _pickProfilePicture() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
 
-              // OK Button
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); 
-                },
-                child: Text("Ok"),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  backgroundColor: Colors.grey,
-                ),
-              ),
-            ],
+    if (result != null) {
+      setState(() {
+        _profilePicture = File(result.files.single.path!);
+      });
+    }
+  }
+
+  Future<void> _pickCvFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      allowMultiple: false,
+    );
+
+    if (result != null) {
+      debugPrint("${result}");
+      setState(() {
+        _cvFile = File(result.files.single.path!);
+      });
+    }
+  }
+
+  Future<void> _pickPortfolioFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      allowMultiple: false,
+    );
+
+    if (result != null) {
+      setState(() {
+        _portfolioFile = File(result.files.single.path!);
+      });
+    }
+  }
+
+  // Function to send PUT request
+  Future<void> _updateProfile() async {
+    debugPrint(
+        "${_namaController.text}\n ${_dobController.text} \n ${_selectedGender} \n ${_nimController.text} \n ${_universityController.text} \n ${_prodiController.text} \n ${_phoneController.text} \n ${_emailController.text} \n ${_profilePicture} \n ${_cvFile} \n ${_portfolioFile}");
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: "authToken");
+    final url = Uri.parse(
+        "https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/user/me");
+    final request = http.MultipartRequest('PUT', url);
+    request.headers['Authorization'] = "Bearer $token";
+
+    request.fields['full_name'] = _namaController.text;
+    request.fields['birth_date'] = "${_dobController.text}Z";
+
+    request.fields['gender'] = _selectedGender == "Laki-Laki" ? "M" : "F";
+    request.fields['nim'] = _nimController.text;
+    request.fields['perguruan_tinggi'] = _universityController.text;
+    request.fields['prodi'] = _prodiController.text;
+    request.fields['phone_number'] = _phoneController.text;
+    request.fields['email'] = _emailController.text;
+
+    // Add files if they exist
+    if (_profilePicture != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+          'profile_picture', _profilePicture!.path));
+    }
+    if (_cvFile != null) {
+      request.files.add(await http.MultipartFile.fromPath('cv', _cvFile!.path));
+    }
+    if (_portfolioFile != null) {
+      request.files.add(
+          await http.MultipartFile.fromPath('portfolio', _portfolioFile!.path));
+    }
+
+    try {
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      final responseData = jsonDecode(responseBody);
+      if (response.statusCode == 200) {
+        _showSuccessDialog(context);
+      } else {
+        final errorData = jsonDecode(responseBody);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text("Failed to save data. Error: ${errorData["message"]}"),
+            backgroundColor: Colors.red,
           ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An error occurred: $e"),
+          backgroundColor: Colors.red,
         ),
       );
-    },
-  );
-}
+    }
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Container(
+            height: 200,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  size: 50,
+                  color: Colors.blueAccent,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Berhasil Disimpan',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Ok"),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    backgroundColor: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _dobController.text = pickedDate.toIso8601String();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: AppColors.white,
-      appBar: AppBar(backgroundColor: AppColors.white,),
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        title: Text("Edit Profile", style: AppFonts.title),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Photo Profile
               Center(
                 child: Stack(
                   alignment: Alignment.center,
@@ -95,7 +220,12 @@ void _showSuccessDialog(BuildContext context) {
                     CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.grey[300],
-                      child: Icon(Icons.person, size: 60),
+                      backgroundImage: _profilePicture != null
+                          ? FileImage(_profilePicture!)
+                          : null,
+                      child: _profilePicture == null
+                          ? Icon(Icons.person, size: 60)
+                          : null,
                     ),
                     Positioned(
                       right: 0,
@@ -103,266 +233,58 @@ void _showSuccessDialog(BuildContext context) {
                       child: CircleAvatar(
                         radius: 15,
                         backgroundColor: AppColors.primary,
-                        child: Icon(Icons.camera_alt_outlined,
-                            size: 20, color: AppColors.white),
+                        child: IconButton(
+                          icon: Icon(Icons.camera_alt_outlined,
+                              size: 20, color: AppColors.white),
+                          onPressed: _pickProfilePicture,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
               SizedBox(height: 20),
-
-              // Data Pribadi
-              Text("Data Pribadi", style: AppFonts.title),
-              SizedBox(height: 10),
-
-              Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                  width: 400,
-                  height: 500,
-                  decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Full Name Field
-                      Text(
-                        "Nama Lengkap",
-                        style: AppFonts.inter.white,
-                      ),
-                      buildTextField(
-                          controller: _namaController,
-                          hintText: 'Mahasiswa Magang'),
-                      SizedBox(height: 10),
-
-                      // Gender Selection
-                      Text(
-                        "Gender",
-                        style: AppFonts.inter.white,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(vertical: 0),
-                              title: Text(
-                                'Laki-Laki',
-                                style: AppFonts.inter,
-                              ),
-                              leading: Radio<String>(
-                                activeColor: AppColors.white,
-                                value: 'Laki-Laki',
-                                groupValue: _selectedGender,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedGender = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(vertical: 0),
-                              title: Text(
-                                'Perempuan',
-                                style: AppFonts.inter,
-                              ),
-                              leading: Radio<String>(
-                                activeColor: AppColors.white,
-                                value: 'Perempuan',
-                                groupValue: _selectedGender,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedGender = value!;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Tanggal Lahir
-                      Text(
-                        "Tanggal Lahir",
-                        style: AppFonts.inter.white,
-                      ),
-                      buildTextField(
-                          controller: _dobController, hintText: 'Input Text'),
-
-                      // Email
-                      Text(
-                        "Email",
-                        style: AppFonts.inter.white,
-                      ),
-                      buildTextField(
-                          controller: _emailController,
-                          hintText: 'mahasiswa2314@gmail.com'),
-
-                      // Phone Number
-                      Text(
-                        "Nomor Handphone",
-                        style: AppFonts.inter.white,
-                      ),
-                      buildTextField(
-                          controller: _phoneController,
-                          hintText: '081435156462'),
-                    ],
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 20),
-              Text("Data Perguruan Tinggi", style: AppFonts.title),
-              SizedBox(height: 10),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                width: 400,
-                height: 320,
-                decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(5)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // University
-                    Text(
-                      "Perguruan Tinggi",
-                      style: AppFonts.inter.white,
-                    ),
-                    buildTextField(
-                        controller: _universityController,
-                        hintText: 'Telkom University'),
-
-                    // NIM
-                    Text(
-                      "NIM",
-                      style: AppFonts.inter.white,
-                    ),
-                    buildTextField(
-                        controller: _nimController, hintText: '1244668721'),
-
-                    // Program Studi
-                    Text(
-                      "Prodi",
-                      style: AppFonts.inter.white,
-                    ),
-                    buildTextField(
-                        controller: _prodiController, hintText: 'Informatika'),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 20),
-              Text("File Pendaftaran", style: AppFonts.title),
-              SizedBox(height: 10),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                width: 400,
-                height: 230,
-                decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(5)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // CV Link
-                    Text(
-                      "CV",
-                      style: AppFonts.inter.white,
-                    ),
-                    buildTextField(
-                        controller: _cvController, hintText: 'Input link'),
-                    Text(
-                      "Portofolio",
-                      style: AppFonts.inter.white,
-                    ),
-                    // Portfolio Link
-                    buildTextField(
-                        controller: _portfolioController,
-                        hintText: 'Input link'),
-                  ],
-                ),
-              ),
-
+              _buildSection("Data Pribadi"),
+              _buildTextField(
+                  "Nama Lengkap", _namaController, "Mahasiswa Magang"),
+              _buildGenderSelection(),
+              _buildDateField("Tanggal Lahir", _dobController),
+              _buildTextField("Email", _emailController, "mahasiswa@gmail.com"),
+              _buildTextField(
+                  "Nomor Handphone", _phoneController, "081435156462"),
+              _buildSection("Data Perguruan Tinggi"),
+              _buildTextField("Perguruan Tinggi", _universityController,
+                  "Telkom University"),
+              _buildTextField("NIM", _nimController, "1244668721"),
+              _buildTextField("Prodi", _prodiController, "Informatika"),
+              _buildSection("File Pendaftaran"),
+              _buildFilePickerField("CV", _cvController, _pickCvFile),
+              _buildFilePickerField(
+                  "Portofolio", _portfolioController, _pickPortfolioFile),
               SizedBox(height: 50),
-
-              // Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      // Collect data
-                      String updatedName = _namaController.text;
-                      String updatedNim = _nimController.text;
-                      String updatedProdi = _prodiController.text;
-                      String updatedPhone = _phoneController.text;
-                      String updatedEmail = _emailController.text;
-                      String updatedCv = _cvController.text;
-                      String updatedPortfolio = _portfolioController.text;
-                      // cek jika null
-                      if (updatedName.isEmpty ||
-                          updatedNim.isEmpty ||
-                          updatedProdi.isEmpty ||
-                          updatedPhone.isEmpty ||
-                          updatedEmail.isEmpty ||
-                          updatedCv.isEmpty ||
-                          updatedPortfolio.isEmpty) {
-                       // snackbar jika gagal
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                "Gagal menyimpan data. Pastikan semua data terisi"),
-                            backgroundColor: AppColors.primary,
-                          ),
-                        );
-                      } else {
-                        // snackbar jika berhasil
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("Data berhasil disimpan."),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-
-                        // tampilkan method show succes dialog
-                        _showSuccessDialog(context);
-
-                        // Proses simpan data dan navigasi
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Profile(
-                              namaLengkap: updatedName,
-                              nim: updatedNim,
-                              prodi: updatedProdi,
-                              phone: updatedPhone,
-                              email: updatedEmail,
-                              cv: updatedCv,
-                              portfolio: updatedPortfolio,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.accent,
-                      padding: EdgeInsets.symmetric(horizontal: 40),
-                    ),
-                    child: Text(
-                      'Simpan',
-                      style: AppFonts.body.white,
-                    ),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_areFieldsValid()) {
+                      _updateProfile(); // Call the update profile function
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              "Gagal menyimpan data. Pastikan semua data terisi"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    padding: EdgeInsets.symmetric(horizontal: 40),
                   ),
-                ],
+                  child: Text('Simpan', style: AppFonts.body.white),
+                ),
               ),
-              SizedBox(
-                height: 50,
-              ),
+              SizedBox(height: 50),
             ],
           ),
         ),
@@ -370,23 +292,111 @@ void _showSuccessDialog(BuildContext context) {
     );
   }
 
-  // Widget untuk TextField
-  Widget buildTextField(
-      {required TextEditingController controller, required String hintText}) {
+  Widget _buildSection(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Text(title, style: AppFonts.title),
+    );
+  }
+
+  Widget _buildTextField(
+      String label, TextEditingController controller, String hintText) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
           filled: true,
           fillColor: AppColors.white,
-          hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
         ),
       ),
     );
   }
+
+  Widget _buildDateField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: GestureDetector(
+        onTap: () => _selectDate(context),
+        child: AbsorbPointer(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: label,
+              hintText: "Pilih tanggal",
+              filled: true,
+              fillColor: AppColors.white,
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+              suffixIcon: Icon(Icons.calendar_today),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenderSelection() {
+    return Row(
+      children: [
+        Radio(
+          value: 'Laki-Laki',
+          groupValue: _selectedGender,
+          onChanged: (String? value) {
+            setState(() {
+              _selectedGender = value!;
+            });
+          },
+        ),
+        Text('Laki-Laki'),
+        Radio(
+          value: 'Perempuan',
+          groupValue: _selectedGender,
+          onChanged: (String? value) {
+            setState(() {
+              _selectedGender = value!;
+            });
+          },
+        ),
+        Text('Perempuan'),
+      ],
+    );
+  }
+
+  Widget _buildFilePickerField(
+      String label, TextEditingController controller, Function onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: GestureDetector(
+        onTap: () => onTap(),
+        child: AbsorbPointer(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: label,
+              hintText: "Unggah $label",
+              filled: true,
+              fillColor: AppColors.white,
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+              suffixIcon: Icon(Icons.upload_file),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _areFieldsValid() {
+    return _namaController.text.isNotEmpty &&
+        _dobController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
+        _phoneController.text.isNotEmpty &&
+        _universityController.text.isNotEmpty &&
+        _nimController.text.isNotEmpty &&
+        _prodiController.text.isNotEmpty;
+  }
 }
-
-

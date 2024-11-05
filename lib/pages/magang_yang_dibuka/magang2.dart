@@ -25,7 +25,7 @@ class _Magang1State extends State<Magang1> {
   Future<void> fetchRoleData() async {
     try {
       final response = await http.get(
-        Uri.parse('https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp/1'),
+        Uri.parse('https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp/2'),
       );
       debugPrint('Status Code: ${response.statusCode}');
 

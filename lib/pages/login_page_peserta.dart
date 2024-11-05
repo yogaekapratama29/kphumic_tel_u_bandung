@@ -7,6 +7,7 @@ import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 import 'package:kphumic_tel_u_bandung/widgets/text_form_fieldWidget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginPagePeserta extends StatefulWidget {
   const LoginPagePeserta({super.key});
@@ -29,6 +30,7 @@ class _LoginPagePesertaState extends State<LoginPagePeserta> {
   }
 
   void _submitform() async {
+    final storage = new FlutterSecureStorage();
     if (_formkey.currentState?.validate() ?? false) {
       final email = _emailController.text;
       final password = _passwordController.text;
@@ -46,12 +48,12 @@ class _LoginPagePesertaState extends State<LoginPagePeserta> {
           body: jsonEncode(requestBody),
         );
 
-        debugPrint("status code ${response.statusCode}");
+        
         if (response.statusCode == 200) {
           final responseData = jsonDecode(response.body);
           if (responseData['status'] == "Success") {
             debugPrint("User successfully registered");
-
+            await storage.write(key: "authToken", value: responseData["token"] );
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => MainPage()),
@@ -62,7 +64,7 @@ class _LoginPagePesertaState extends State<LoginPagePeserta> {
         } else {
           final errorData = jsonDecode(response.body);
           debugPrint("Server error: ${response.statusCode}");
-          debugPrint("Error message: ${errorData['message']}");
+
         }
       } catch (e) {
         debugPrint("Error: $e");
