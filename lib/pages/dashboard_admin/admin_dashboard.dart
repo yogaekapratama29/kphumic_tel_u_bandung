@@ -8,10 +8,10 @@ import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/proses_pelamar.dart'
 import 'package:kphumic_tel_u_bandung/pages/login_page_admin.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -21,40 +21,111 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  
+  List<Map<String, dynamic>> lamaran = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLamaranData();
+    _checkToken();
+    _fetchDataPosisiMagang();
+  }
+
   void _checkToken() async {
-      final storage = new FlutterSecureStorage();
-      try {
-        String? token = await storage.read(key: "authToken");
-        if(token == null){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPageAdmin()));
-        }
-        final response = await http.get(
-          Uri.parse(
-              'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/verify-token'),
-          headers: {"Authorization": "Bearer ${token}"},
-        );
+    final storage = FlutterSecureStorage();
+    try {
+      String? token = await storage.read(key: "authToken");
+      if (token == null) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => LoginPageAdmin()));
+      }
+      final response = await http.get(
+        Uri.parse(
+            'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/verify-token'),
+        headers: {"Authorization": "Bearer $token"},
+      );
 
-        debugPrint("status code ${response.statusCode}");
-        if (response.statusCode != 200) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPageAdmin()));
-        }
-        }catch(error){
-          debugPrint("Error");
-        }
+      if (response.statusCode != 200) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => LoginPageAdmin()));
+      }
+    } catch (error) {
+      debugPrint("Error: $error");
     }
-  
+  }
 
-  final List<Map<String, String>> students = [
-    {"name": "Mahasiswa A", "status": "Lulus", "color": "green"},
-    {"name": "Mahasiswa B", "status": "Gagal", "color": "red"},
-    {"name": "Mahasiswa C", "status": "Proses", "color": "grey"},
-    {"name": "Mahasiswa D", "status": "Non", "color": "black"},
-  ];
+  Future<void> _fetchLamaranData() async {
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: "authToken");
+
+    if (token == null) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/application-kp'),
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          lamaran = List<Map<String, dynamic>>.from(data['data']);
+        });
+      } else {
+        debugPrint("Failed to load data");
+      }
+    } catch (error) {
+      debugPrint("Error fetching data: $error");
+    }
+  }
+/// 
+  List<Map<String, dynamic>> internships = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+Future<void> _fetchDataPosisiMagang() async {
+    debugPrint("Starting fetch data");
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp'),
+      );
+      debugPrint("Response status code: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        debugPrint("Response data: $data");
+
+        if (data['status'] == "Success") {
+          setState(() {
+            internships = List<Map<String, dynamic>>.from(data['data']);
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            errorMessage = "User data is invalid.";
+            isLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = "Server error: ${response.statusCode}";
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "Error fetching data: $e";
+        isLoading = false;
+      });
+    }
+  }
+
+
 
   int _selectedIndex = 0;
-  String? _dropdownValue;
-  Color _dropdownColor = Colors.red; // Default color (red)
 
   void _onItemTapped(int index) {
     setState(() {
@@ -66,35 +137,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
         break;
       case 1:
         Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => BatchMagang()),
-        );
+            context, MaterialPageRoute(builder: (context) => BatchMagang()));
         break;
       case 2:
         Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FormMagang()),
-        );
+            context, MaterialPageRoute(builder: (context) => FormMagang()));
         break;
       case 3:
         Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ProfileAdmin()),
-        );
+            context, MaterialPageRoute(builder: (context) => ProfileAdmin()));
         break;
     }
   }
 
-  void _onDropdownChanged(String? newValue) {
-    setState(() {
-      _dropdownValue = newValue;
-      _dropdownColor = Colors.green; 
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: AppColors.white,
+    return Scaffold(
+      backgroundColor: AppColors.white,
       bottomNavigationBar: GNav(
         activeColor: AppColors.primary,
         selectedIndex: _selectedIndex,
@@ -102,70 +161,44 @@ class _AdminDashboardState extends State<AdminDashboard> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         iconSize: 30,
         tabs: [
-          GButton(
-            icon: Icons.home_outlined,
-          ),
-          GButton(
-            icon: Icons.date_range_outlined,
-          ),
-          GButton(
-            icon: Icons.badge_outlined,
-          ),
-          GButton(
-            icon: Icons.person_outline,
-          ),
+          GButton(icon: Icons.home_outlined),
+          GButton(icon: Icons.date_range_outlined),
+          GButton(icon: Icons.badge_outlined),
+          GButton(icon: Icons.person_outline),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
           child: Column(
             children: [
               SizedBox(height: 80),
               Text("Dashboard", style: AppFonts.display2.primary),
+              SizedBox(
+                height: 30,
+              ),
+              Container(
+                width: 328,
+                height: 131,
+                child: Column(
+                  children: [Text("Jumlah Pelamar"), Text("${lamaran.length}")],
+                ),
+              ),SizedBox(height: 10,),
+
+               Container(
+                width: 328,
+                height: 131,
+                child: Column(
+                  children: [Text("Jumlah Posisi Magang"), Text("${internships.length}")],
+                ),
+              ),
               SizedBox(height: 50),
-              Center(
-                child: Container(
-                  width: 328,
-                  height: 131,
-                  color: Color.fromARGB(255, 255, 255, 174),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Jumlah Pengguna", style: AppFonts.title),
-                      SizedBox(height: 10),
-                      Text("4", style: AppFonts.display2),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: Container(
-                  width: 328,
-                  height: 131,
-                  color: Color.fromARGB(255, 193, 255, 178),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Jumlah Pengguna", style: AppFonts.title),
-                      SizedBox(height: 10),
-                      Text("4", style: AppFonts.display2),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 30),
               Center(
                 child: Container(
                   width: 328,
                   height: 31,
                   color: AppColors.primary,
-                  child: Text(
-                    "Pengguna Aktif",
-                    style: AppFonts.body2.white,
-                    textAlign: TextAlign.center,
-                  ),
+                  child: Text("Pengguna Aktif",
+                      style: AppFonts.body2.white, textAlign: TextAlign.center),
                 ),
               ),
               SizedBox(height: 20),
@@ -177,89 +210,52 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Nama Lengkap", style: AppFonts.small.white),
-                    Text("Status Penerimaan", style: AppFonts.small.white),
+                    Text("Nama", style: AppFonts.small.white),
+                    Text("Status", style: AppFonts.small.white),
                   ],
                 ),
               ),
-              // Tabel Pengguna Aktif
+              // Display applications
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: students.length,
+                itemCount: lamaran.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 40),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        students[index]["name"] ?? "",
-                        style: AppFonts.body2,
+                  return GestureDetector(onTap: () {
+                   
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProsesPelamar(applicationId: lamaran[index]['application_id'].toString(),)));
+                  },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 40),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 96,
-                            height: 27,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 15),
-                            decoration: BoxDecoration(
-                              color: _getColor(students[index]["color"]),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Text(
-                              students[index]["status"] ?? "",
-                              style: AppFonts.body2.white,
-                              textAlign: TextAlign.center,
-                            ),
+                      child: ListTile(
+                        title: Text(
+                          lamaran[index]["user"]['full_name'] ?? "Unknown",
+                          style: AppFonts.body2,
+                        ),
+                        trailing: Container(
+                          width: 96,
+                          height: 27,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(lamaran[index]["status"]),
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                          SizedBox(width: 10),
-                          GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ProsesPelamar()));
-                              },
-                              child: Icon(Icons.arrow_forward,
-                                  color: AppColors.primary)),
-                        ],
+                          child: Text(
+                            lamaran[index]["status"] ?? "",
+                            style: AppFonts.body2.white,
+                          ),
+                        ),
                       ),
                     ),
                   );
                 },
               ),
               SizedBox(height: 20),
-
-              GestureDetector(
-                onTap: () {},
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 40),
-                    child: Container(
-                      padding: EdgeInsets.only(),
-                      height: 40,
-                      width: 154,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(5)),
-                      child: Text(
-                        "Download PDF",
-                        style: AppFonts.body.white,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 200),
             ],
           ),
         ),
@@ -267,19 +263,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  // Fungsi untuk mendapatkan warna berdasarkan status
-  Color _getColor(String? color) {
-    switch (color) {
-      case "green":
-        return Colors.green;
-      case "red":
-        return AppColors.primary;
-      case "grey":
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case "Proses":
         return Colors.grey;
-      case "black":
-        return Colors.black;
+      case "Lulus":
+        return Colors.green;
+      case "Gagal":
+        return Colors.red;
       default:
-        return Colors.transparent;
+        return Colors.black;
     }
   }
 }

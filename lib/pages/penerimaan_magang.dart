@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:kphumic_tel_u_bandung/pages/about_us_page.dart';
-import 'package:kphumic_tel_u_bandung/pages/magang_yang_dibuka/magang2.dart';
-import 'package:kphumic_tel_u_bandung/pages/magang_yang_dibuka/magang3.dart';
 import 'package:kphumic_tel_u_bandung/pages/magang_yang_dibuka/magang_1.dart';
 import 'package:kphumic_tel_u_bandung/pages/main_page.dart';
 import 'package:kphumic_tel_u_bandung/pages/our_contact.dart';
@@ -147,45 +145,29 @@ class _PenerimaanMagangState extends State<PenerimaanMagang> {
                           ),
                         ),
                         SizedBox(height: 20),
-                       Column(
-  children: internships.map((internship) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0, left: 15, right: 15),
-      child: GestureDetector(
-        onTap: () {
-          if (internship['name'].toString().toLowerCase().contains('back-end')) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Magang1()),
-            );
-          } else if (internship['name'].toString().toLowerCase().contains('ui/ux')) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Magang2()),
-            );
-          }else if (internship['name'].toString().toLowerCase().contains('mobile developer')) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Magang3()),
-            );
-          }
-           else {
-            // Default route atau route untuk posisi lain
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Magang1()),
-            );
-          }
-        },
-        child: ContentMagang(
-          name: internship['name'],
-          description: internship['description'],
-          roleImage: internship['role_image'],
-        ),
-      ),
-    );
-  }).toList(),
-),
+                        Column(
+                          children: internships.map((internship) {
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 20.0, left: 15, right: 15),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Magang1(
+                                              posisiId:
+                                                  internship['role_id'].toString())));
+                                },
+                                child: ContentMagang(
+                                  name: internship['name'],
+                                  description: internship['description'],
+                                  roleImage: internship['role_image'],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
                         SizedBox(height: 100),
                       ],
                     ),
