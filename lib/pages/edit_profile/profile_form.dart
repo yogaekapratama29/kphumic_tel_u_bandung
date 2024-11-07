@@ -231,7 +231,7 @@ class _ProfileFormState extends State<ProfileForm> {
                       right: 0,
                       bottom: 0,
                       child: CircleAvatar(
-                        radius: 15,
+                        radius: 20,
                         backgroundColor: AppColors.primary,
                         child: IconButton(
                           icon: Icon(Icons.camera_alt_outlined,

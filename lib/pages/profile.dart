@@ -1,7 +1,10 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:kphumic_tel_u_bandung/pages/about_us_page.dart';
 import 'package:kphumic_tel_u_bandung/pages/edit_profile/profile_form.dart';
@@ -33,11 +36,20 @@ class _ProfileState extends State<Profile> {
   String? gender;
   String? perguruanTinggi;
   String? profilePicture;
-  String? applicationId;
+  late int applicationId;
   String? status;
   String? applicationDate;
   bool isLoading = true;
   String? errorMessage;
+
+  String formatDate(String date) {
+    try {
+      final parsedDate = DateTime.parse(date);
+      return DateFormat('dd/MM/yyyy').format(parsedDate);
+    } catch (e) {
+      return date;
+    }
+  }
 
   Future<void> fetchUserData() async {
     debugPrint("Test Masuk");
@@ -73,7 +85,7 @@ class _ProfileState extends State<Profile> {
             email = data['data']['email'] ?? email;
             cv = data['data']['cv'] ?? cv;
             portfolio = data['data']['portfolio'] ?? portfolio;
-            birthDate = data['data']['birth_date'] ?? birthDate;
+            birthDate = formatDate(data['data']['birth_date'] ?? '');
             gender = data['data']['gender'] ?? gender;
             perguruanTinggi =
                 data['data']['perguruan_tinggi'] ?? perguruanTinggi;
@@ -82,9 +94,9 @@ class _ProfileState extends State<Profile> {
                 "Belum Mendaftar";
             status =
                 data['data']['kp_application']?['status'] ?? "Belum Mendaftar";
-            applicationDate = data['data']['kp_application']
-                    ?['application_date'] ??
-                "Tanggal tidak tersedia";
+            applicationDate = formatDate(
+                data['data']['kp_application']?['application_date'] ?? '');
+
             isLoading = false;
           });
           debugPrint("Masuk");
@@ -179,7 +191,8 @@ class _ProfileState extends State<Profile> {
                                 child: Container(
                                   width: 380,
                                   height: 900,
-                                  padding: EdgeInsets.only(top: 15,bottom: 15,left: 40,right: 40),
+                                  padding: EdgeInsets.only(
+                                      top: 15, bottom: 15, left: 40, right: 40),
                                   decoration: BoxDecoration(
                                     color: AppColors.primary,
                                     borderRadius: BorderRadius.circular(5),
@@ -191,33 +204,71 @@ class _ProfileState extends State<Profile> {
                                       ),
                                       Row(children: [
                                         Text(
-                                          'Nama Lengkap: ', style: AppFonts.body.white,
+                                          'Nama Lengkap: ',
+                                          style: AppFonts.body.white,
                                         ),
                                         Spacer(),
-                                        Text('$namaLengkap',
-                                          style: AppFonts.body.white,)
-
+                                        Text(
+                                          '$namaLengkap',
+                                          style: AppFonts.body.white,
+                                        )
                                       ]),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('NIM: $nim',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'NIM: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text('$nim',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Prodi: $prodi',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Prodi: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text(' $prodi',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Phone: $phone',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Phone: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text(' $phone',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Email: $email',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Email: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text('$email',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
@@ -231,33 +282,85 @@ class _ProfileState extends State<Profile> {
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Birth Date: $birthDate',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [ Text(
+                                            'Tanggal Lahir: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text('$birthDate',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Gender: $gender',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Gender: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text(' $gender',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Perguruan Tinggi: $perguruanTinggi',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Perguran Tinggi: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text('$perguruanTinggi',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Application ID: $applicationId',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Application ID: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text(' $applicationId',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Status: $status',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Status : ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text(' $status',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Text('Application Date: $applicationDate',
-                                          style: AppFonts.body.white),
+                                      Row(
+                                        children: [ Text(
+                                            'Application Date: ',
+                                            style: AppFonts.body.white,
+                                          ),
+                                          Spacer(),
+                                          Text(' $applicationDate',
+                                              style: AppFonts.body.white),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -272,7 +375,16 @@ class _ProfileState extends State<Profile> {
                                     color: Color.fromARGB(255, 161, 167, 196),
                                   ),
                                   child: profilePicture != null
-                                      ? Image.network(profilePicture!)
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(50),
+                                          child: Image.network(
+                                            profilePicture!,
+                                            fit: BoxFit.cover,
+                                            width: 96,
+                                            height: 96,
+                                          ),
+                                        )
                                       : Icon(Icons.person,
                                           size: 96, color: Colors.grey),
                                 ),
@@ -309,7 +421,9 @@ class _ProfileState extends State<Profile> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {
+                              onTap: () async {
+                                final storage = new FlutterSecureStorage();
+                                await storage.delete(key: 'authToken');
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(

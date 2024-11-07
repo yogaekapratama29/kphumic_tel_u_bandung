@@ -209,7 +209,7 @@ class ContentMagang extends StatelessWidget {
               roleImage!,
               height: 100,
               width: double.infinity,
-              fit: BoxFit.contain,
+              fit: BoxFit.fitWidth,
             ),
           SizedBox(height: 20),
           Text(

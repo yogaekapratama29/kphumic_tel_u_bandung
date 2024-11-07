@@ -26,171 +26,186 @@ class _Magang1State extends State<Magang1> {
   }
 
   Future<void> fetchApplicantData() async {
-  final storage = FlutterSecureStorage();
-  String? token = await storage.read(key: "authToken");
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: "authToken");
 
-  // Periksa apakah token ada
-  if (token == null) {
-    print('Token is missing.');
-    setState(() {
-      isLoading = false;
-    });
-    return;
-  }
+    if (token == null) {
+      print('Token is missing.');
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
 
-  try {
-    final response = await http.get(
-      Uri.parse(
-          'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp/${widget.posisiId}'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp/${widget.posisiId}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      try {
-        // Parse JSON hanya jika statusCode adalah 200
-        setState(() {
-          applicantData = json.decode(response.body)['data'];
-          isLoading = false;
-        });
-      } catch (e) {
-        print('Error parsing JSON: $e');
+      if (response.statusCode == 200) {
+        try {
+          setState(() {
+            applicantData = json.decode(response.body)['data'];
+            isLoading = false;
+          });
+        } catch (e) {
+          print('Error parsing JSON: $e');
+          setState(() {
+            isLoading = false;
+          });
+        }
+      } else {
+        print('Failed to load data: ${response.statusCode}');
+        print('Response body: ${response.body}');
         setState(() {
           isLoading = false;
         });
       }
-    } else {
-      // Tampilkan status code dan respons jika gagal
-      print('Failed to load data: ${response.statusCode}');
-      print('Response body: ${response.body}');
+    } catch (error) {
+      print('An error occurred: $error');
       setState(() {
         isLoading = false;
       });
     }
-  } catch (error) {
-    // Tangani error jaringan
-    print('An error occurred: $error');
-    setState(() {
-      isLoading = false;
-    });
   }
-}
 
+  Future<void> submitApplication() async {
+    final roleId = applicantData?['role_id'];
+    if (roleId == null) {
+      print("Error: roleId is null.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Role ID is missing, cannot submit application."),
+        ),
+      );
+      return;
+    }
+
+    final storage = FlutterSecureStorage();
+    try {
+      String? token = await storage.read(key: "authToken");
+      debugPrint("Token: $token");
+
+      if (token != null) {
+        final response = await http.post(
+          Uri.parse(
+              'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/application-kp'),
+          headers: {
+            "Authorization": "Bearer $token",
+            "Content-Type": "application/json"
+          },
+          body: jsonEncode({"roleId": roleId}),
+        );
+
+        final responseData = json.decode(response.body);
+        debugPrint("Response message: ${responseData['message']}");
+
+        if (response.statusCode == 201) {
+          debugPrint("Application submitted successfully.");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Application submitted successfully.")),
+          );
+        } else {
+          debugPrint("Error: ${responseData['message']}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error: ${responseData['message']}")),
+          );
+        }
+      } else {
+        debugPrint("No token found");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Authentication token is missing.")),
+        );
+      }
+    } catch (error) {
+      debugPrint("An error occurred: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred, please try again.")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: AppColors.white,
+        
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : SafeArea(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 20),
-                      Text(
-                        applicantData?['name'] ?? 'Job Position',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Image.network(
-                        applicantData?['role_image'] ??
-                            'https://via.placeholder.com/150',
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        applicantData?['description'] ??
-                            'Job description goes here...',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        'Kualifikasi',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        applicantData?['kualifikasi'] ??
-                            'Job qualifications go here...',
-                        style: TextStyle(fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 30),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final roleId = applicantData?['role_id'];
-                          final storage = FlutterSecureStorage();
-                          try {
-                            String? token =
-                                await storage.read(key: "authToken");
-                            debugPrint("Token: $token");
-                            debugPrint("roleId type: ${roleId.runtimeType}");
-                            debugPrint(roleId.toString());
-
-                            if (token != null) {
-                              final response = await http.post(
-                                Uri.parse(
-                                    'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/application-kp'),
-                                headers: {
-                                  "Authorization": "Bearer $token",
-                                  "Content-Type": "application/json"
-                                },
-                                body: jsonEncode({"roleId" : roleId.toString()}),
-                              );
-
-                              final responseData = json.decode(response.body);
-                              debugPrint(
-                                  "Response message: ${responseData['message']}");
-
-                              if (response.statusCode == 201) {
-                                debugPrint(
-                                    "Application submitted successfully.");
-                                // You may want to show a success dialog or navigate away
-                              } else {
-                                debugPrint("Error: ${responseData['message']}");
-                                // Handle other status codes, like showing an error message
-                              }
-                            } else {
-                              debugPrint("No token found");
-                              // Handle case where token is missing, such as showing a login prompt
-                            }
-                          } catch (error) {
-                            debugPrint("An error occurred: $error");
-                            // Handle network errors, like showing an error dialog
-                          }
-                        },
-                        child: Text('Daftar'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        
+                        Text("Penerimaan\nMagang",style: AppFonts.display2.primary,textAlign: TextAlign.center,),
+                        SizedBox(height: 20),
+                        Container(
+                          width: 324,
+                          height: 144,
+                          child: Image.network(
+                            applicantData?['role_image'] ??
+                                'https://via.placeholder.com/150',
+                           
+                            fit: BoxFit.fitWidth,
                           ),
                         ),
-                      ),
-                      SizedBox(height: 50),
-                    ],
+                        SizedBox(height: 20),
+                        Text(
+                          applicantData?['name'] ?? 'Job Position',
+                          style: AppFonts.title.primary,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          applicantData?['description'] ??
+                              'Job description goes here...',
+                          style: AppFonts.body.black,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          'Kualifikasi',
+                          style: AppFonts.body.black,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          applicantData?['kualifikasi'] ??
+                              'Job qualifications go here...',
+                          style: AppFonts.body.black,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 70),
+                        ElevatedButton(
+                          onPressed: submitApplication,
+                          child: Text(
+                            'Daftar',
+                            style: AppFonts.body2.white,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accent,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 50),
+                      ],
+                    ),
                   ),
                 ),
               ),
