@@ -283,7 +283,8 @@ class _ProfileState extends State<Profile> {
                                         height: 20,
                                       ),
                                       Row(
-                                        children: [ Text(
+                                        children: [
+                                          Text(
                                             'Tanggal Lahir: ',
                                             style: AppFonts.body.white,
                                           ),
@@ -309,17 +310,8 @@ class _ProfileState extends State<Profile> {
                                       SizedBox(
                                         height: 20,
                                       ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Perguran Tinggi: ',
-                                            style: AppFonts.body.white,
-                                          ),
-                                          Spacer(),
-                                          Text('$perguruanTinggi',
-                                              style: AppFonts.body.white),
-                                        ],
-                                      ),
+                                      Text('Perguran Tinggi: $perguruanTinggi',
+                                          style: AppFonts.body.white),
                                       SizedBox(
                                         height: 20,
                                       ),
@@ -352,7 +344,8 @@ class _ProfileState extends State<Profile> {
                                         height: 20,
                                       ),
                                       Row(
-                                        children: [ Text(
+                                        children: [
+                                          Text(
                                             'Application Date: ',
                                             style: AppFonts.body.white,
                                           ),

@@ -178,17 +178,17 @@ Future<void> _fetchDataPosisiMagang() async {
               ),
               Container(
                 width: 328,
-                height: 131,
-                child: Column(
-                  children: [Text("Jumlah Pelamar"), Text("${lamaran.length}")],
+                height: 131,decoration: BoxDecoration(color: Color.fromARGB(255, 255, 255, 174)),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Text("Jumlah Pelamar",style: AppFonts.title.black,), Text("${lamaran.length}",style: AppFonts.display2.black,)],
                 ),
               ),SizedBox(height: 10,),
 
                Container(
                 width: 328,
-                height: 131,
-                child: Column(
-                  children: [Text("Jumlah Posisi Magang"), Text("${internships.length}")],
+                height: 131,decoration: BoxDecoration(color: Color.fromARGB(255, 193, 255, 178)),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Text("Jumlah Posisi Magang",style: AppFonts.title.black), Text("${internships.length}",style: AppFonts.display2.black,)],
                 ),
               ),
               SizedBox(height: 50),

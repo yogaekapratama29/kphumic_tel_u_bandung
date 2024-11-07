@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
+import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
 class TambahFormMagang extends StatefulWidget {
   @override
@@ -166,9 +167,7 @@ void initState() {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text('Form Magang 2', style: AppFonts.body),
+        backgroundColor: AppColors.white
       ),
       body: SafeArea(
         child: _isLoading
@@ -291,7 +290,7 @@ else
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.grayColor,
-                              fixedSize: Size(100, 45),
+                              fixedSize: Size(130, 45),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -299,18 +298,18 @@ else
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: Text("Batal", style: AppFonts.body),
+                            child: Text("Batal", style: AppFonts.body.white),
                           ),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.accent,
-                              fixedSize: Size(100, 45),
+                              fixedSize: Size(130, 45),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(50),
                               ),
                             ),
                             onPressed: _tambahPosisiMagang,
-                            child: Text("Simpan", style: AppFonts.body),
+                            child: Text("Simpan", style: AppFonts.body.white),
                           ),
                         ],
                       ),
