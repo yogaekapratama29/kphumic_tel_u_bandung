@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: "KPHumic Telkom University Bandung",
-      debugShowCheckedModeBanner: !kReleaseMode,
+      debugShowCheckedModeBanner: false,
       routerConfig: _appRouter,
     );
   }

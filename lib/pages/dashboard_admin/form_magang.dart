@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/admin_dashboard.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/batch_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/profile_admin.dart';
@@ -16,60 +19,71 @@ class FormMagang extends StatefulWidget {
   State<FormMagang> createState() => _FormMagangState();
 }
 
-  class _FormMagangState extends State<FormMagang> {
-  final List<Map<String, dynamic>> posisi = [
-    {
-      "name": "Frontend",
-      "description": "Membuat Tampilan Website",
-      "status": "Dibuka",
-      "color": "green",
-      "endDate": DateTime(2024, 12, 31)
-    },
-    {
-      "name": "Backend",
-      "description": "Implementasi logic di Server",
-      "status": "Ditutup",
-      "color": "red",
-      "endDate": DateTime(2023, 10, 20)
-    },
-    {
-      "name": "Mobile",
-      "description": "Membuat mobile aplikasi",
-      "status": "Dibuka",
-      "color": "green",
-      "endDate": DateTime(2024, 11, 30)
-    },
-    {
-      "name": "UI/UX",
-      "description": "Mendesain Design interface",
-      "status": "Dibuka",
-      "color": "green",
-      "endDate": DateTime(2024, 12, 10)
-    },
-  ];
-
+class _FormMagangState extends State<FormMagang> {
+  List<Map<String, dynamic>> posisi = [];
   int _selectedIndex = 2;
 
   @override
   void initState() {
     super.initState();
-    _checkStatus();
+    _fetchData();
   }
 
-  // Fungsi untuk memeriksa tanggal dan memperbarui status
-  void _checkStatus() {
-    DateTime now = DateTime.now();
-    setState(() {
-      for (var item in posisi) {
-        if (item['endDate'].isBefore(now)) {
-          item['status'] = "Ditutup";
-          item['color'] = "red";
-        } else {
-          item['status'] = "Dibuka";
-          item['color'] = "green";
-        }
+  Future<void> _fetchData() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          posisi = (data['data'] as List).map((role) {
+            DateTime? endDate;
+            if (role['batch']['closed_at'] != null) {
+              endDate = DateTime.parse(role['batch']['closed_at']);
+            }
+
+            return {
+              "role_id": role['role_id'],
+              "name": role['name'] ?? "Unknown",
+              "status": (endDate != null && endDate.isAfter(DateTime.now())) ? "Dibuka" : "Ditutup",
+              "color": (endDate != null && endDate.isAfter(DateTime.now())) ? "green" : "red",
+              "endDate": endDate ?? DateTime.now()
+            };
+          }).toList();
+        });
+      } else {
+        print('Failed to load data');
       }
-    });
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> _deletePosition(int id) async {
+    debugPrint("${id}");
+    try {
+      final storage = FlutterSecureStorage();
+      String? token = await storage.read(key: "authToken");
+      final response = await http.delete(
+        Uri.parse(
+            'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          posisi.removeWhere((position) => position["role_id"] == id);
+        });
+        print('Position deleted successfully');
+      } else {
+        print('Failed to delete position');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   void _onItemTapped(int index) {
@@ -77,9 +91,9 @@ class FormMagang extends StatefulWidget {
       _selectedIndex = index;
     });
 
-   switch (index) {
+    switch (index) {
       case 0:
-         Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => AdminDashboard()),
         );
@@ -91,7 +105,6 @@ class FormMagang extends StatefulWidget {
         );
         break;
       case 2:
-       
         break;
       case 3:
         Navigator.push(
@@ -102,23 +115,10 @@ class FormMagang extends StatefulWidget {
     }
   }
 
-  
-  Future<void> _navigateToTambahFormMagang() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => TambahFormMagang()),
-    );
-
-    if (result != null && result is Map<String, dynamic>) {
-      setState(() {
-        posisi.add(result);
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: AppColors.white,
+    return Scaffold(
+      backgroundColor: AppColors.white,
       bottomNavigationBar: GNav(
         activeColor: AppColors.primary,
         selectedIndex: _selectedIndex,
@@ -127,9 +127,7 @@ class FormMagang extends StatefulWidget {
         iconSize: 30,
         tabs: [
           GButton(icon: Icons.home_outlined),
-           GButton(
-            icon: Icons.date_range_outlined,
-          ),
+          GButton(icon: Icons.date_range_outlined),
           GButton(icon: Icons.badge_outlined),
           GButton(icon: Icons.person_outline),
         ],
@@ -143,7 +141,7 @@ class FormMagang extends StatefulWidget {
               SizedBox(height: 50),
               Center(
                 child: Container(
-                  width: 328,
+                  width: MediaQuery.of(context).size.width * 0.9,
                   height: 31,
                   color: AppColors.primary,
                   child: Text(
@@ -155,9 +153,9 @@ class FormMagang extends StatefulWidget {
               ),
               SizedBox(height: 10),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 40),
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 height: 31,
-                width: 328,
+                width: MediaQuery.of(context).size.width * 0.9,
                 color: AppColors.primary,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -173,32 +171,33 @@ class FormMagang extends StatefulWidget {
                 itemCount: posisi.length,
                 itemBuilder: (context, index) {
                   return Container(
-                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 40),
+                    margin: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                     padding: EdgeInsets.all(16),
+                    width: MediaQuery.of(context).size.width * 0.9,
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Text(
-                          posisi[index]["name"] ?? "",
-                          style: AppFonts.body2,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                posisi[index]["name"] ?? "",
+                                style: AppFonts.body2,
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "Periode: ${DateFormat('dd/MM/yyyy').format(posisi[index]['endDate'] ?? DateTime.now())}",
+                                style: AppFonts.small,
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 5),
-                        Text(
-                          posisi[index]["description"] ?? "",
-                          style: AppFonts.body,
-                        ),
-                        SizedBox(height: 5),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              "Periode: ${DateFormat('dd/MM/yyyy').format(posisi[index]['endDate'])}",
-                              style: AppFonts.small,
-                            ),
                             Container(
                               width: 96,
                               height: 27,
@@ -213,6 +212,11 @@ class FormMagang extends StatefulWidget {
                                 textAlign: TextAlign.center,
                               ),
                             ),
+                            SizedBox(width: 10),
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deletePosition(posisi[index]["role_id"]),
+                            ),
                           ],
                         ),
                       ],
@@ -223,10 +227,10 @@ class FormMagang extends StatefulWidget {
               SizedBox(height: 50),
               GestureDetector(
                 onTap: () {
-                  _navigateToTambahFormMagang(); 
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => TambahFormMagang()));
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 40),
+                  padding: const EdgeInsets.only(right: 20),
                   child: Align(
                     alignment: Alignment.bottomRight,
                     child: Container(
@@ -234,8 +238,9 @@ class FormMagang extends StatefulWidget {
                       width: 190,
                       height: 40,
                       decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(5)),
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                       child: Text(
                         "Tambah Form Magang",
                         style: AppFonts.body.white,
@@ -264,4 +269,3 @@ class FormMagang extends StatefulWidget {
     }
   }
 }
-

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
 class TambahFormMagang extends StatefulWidget {
   @override
@@ -10,43 +13,136 @@ class TambahFormMagang extends StatefulWidget {
 }
 
 class _TambahFormMagangState extends State<TambahFormMagang> {
-  String? _status = 'Dibuka';
-  Color _statusColor = Colors.green;
-
-  // Controller 
+  String? _selectedBatch;
+  List<Map<String, dynamic>> _batchList = [];
   TextEditingController _namaPosisiController = TextEditingController();
   TextEditingController _deskripsiPosisiController = TextEditingController();
-  TextEditingController _startDateController = TextEditingController();
-  TextEditingController _endDateController = TextEditingController();
+  TextEditingController _keahlianController = TextEditingController();
+  TextEditingController _slugController = TextEditingController();
+  File? _roleImage;
 
-  DateTime? _startDate;
-  DateTime? _endDate;
+  @override
+  void initState() {
+    super.initState();
+    fetchBatches();
+    if (_batchList.isNotEmpty) {
+      _selectedBatch = _batchList.first['id'].toString();
+    }
+  }
 
+  Future<void> fetchBatches() async {
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: "authToken");
+    final url = Uri.parse('https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/batch');
 
-  Future<void> _selectDate(BuildContext context, bool isStart) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
+    final response = await http.get(url, headers: {
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List<dynamic> batches = data['data'];
+
       setState(() {
-        if (isStart) {
-          _startDate = picked;
-          _startDateController.text = DateFormat('dd/MM/yyyy').format(picked);
+        _batchList = batches
+            .map((batch) => {
+                  'id': batch['id'],
+                  'name': "Batch ${batch['number']}",
+                })
+            .toList();
+      });
+    } else {
+      print("Failed to load batches: ${response.statusCode}");
+    }
+  }
+
+  Future<void> _pickImage(String type) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        if (type == 'role') {
+          _roleImage = File(result.files.single.path!);
         } else {
-          _endDate = picked;
-          _endDateController.text = DateFormat('dd/MM/yyyy').format(picked);
+          // handle profile image if needed
         }
       });
     }
   }
 
+  Future<void> _updateProfile() async {
+    if (_selectedBatch == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please select a batch first."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: "authToken");
+    final url = Uri.parse(
+        "https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp");
+    final request = http.MultipartRequest('POST', url);
+    request.headers['Authorization'] = "Bearer $token";
+
+    debugPrint("Preparing to send with the following values:");
+    debugPrint("Slug: ${_slugController.text}");
+    debugPrint("Name: ${_namaPosisiController.text}");
+    debugPrint("Description: ${_deskripsiPosisiController.text}");
+    debugPrint("Qualifications: ${_keahlianController.text}");
+    debugPrint("Batch ID: $_selectedBatch");
+    debugPrint("Role Image: $_roleImage");
+
+    request.fields['slug'] = _slugController.text;
+    request.fields['name'] = _namaPosisiController.text;
+    request.fields['description'] = _deskripsiPosisiController.text;
+    request.fields['kualifikasi'] = _keahlianController.text;
+    request.fields['batch_id'] = _selectedBatch!;
+
+    if (_roleImage != null) {
+      request.files.add(
+          await http.MultipartFile.fromPath('role_image', _roleImage!.path));
+    }
+
+    try {
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      final responseData = jsonDecode(responseBody);
+      if (response.statusCode == 200) {
+        _showSuccessDialog(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text("Failed to save data. Error: ${responseData["message"]}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An error occurred: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: AppColors.white,
-      appBar: AppBar(),
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('Form Magang 2', style: AppFonts.body),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -60,19 +156,35 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
                       CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.grey[300],
-                        child: Icon(Icons.person, size: 60),
+                        backgroundImage:
+                            _roleImage != null ? FileImage(_roleImage!) : null,
+                        child: _roleImage == null
+                            ? Icon(Icons.person, size: 60)
+                            : null,
                       ),
                       Positioned(
                         right: 0,
                         bottom: 0,
-                        child: CircleAvatar(
-                          radius: 15,
-                          backgroundColor: AppColors.primary,
-                          child: Icon(Icons.camera_alt_outlined,
-                              size: 20, color: AppColors.white),
+                        child: InkWell(
+                          onTap: () => _pickImage('role'),
+                          child: CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColors.primary,
+                            child: Icon(Icons.camera_alt_outlined,
+                                size: 20, color: AppColors.white),
+                          ),
                         ),
                       ),
                     ],
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text("Slug", style: AppFonts.body),
+                SizedBox(height: 10),
+                TextFormField(
+                  controller: _slugController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
                   ),
                 ),
                 SizedBox(height: 16),
@@ -83,7 +195,6 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
-                 
                 ),
                 SizedBox(height: 16),
                 Text("Deskripsi", style: AppFonts.body),
@@ -94,105 +205,72 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
-                  
                 ),
                 SizedBox(height: 16),
-                Text("Periode", style: AppFonts.body),
+                Text("Keahlian", style: AppFonts.body),
                 SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildDateField(
-                          label: 'From',
-                          controller: _startDateController,
-                          onTap: () => _selectDate(context, true)),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: _buildDateField(
-                          label: 'To',
-                          controller: _endDateController,
-                          onTap: () => _selectDate(context, false)),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Text("Status Magang", style: AppFonts.body),
-                SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _status,
+                TextFormField(
+                  controller: _keahlianController,
+                  maxLines: 2,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
-                  items: <String>['Dibuka', 'Ditutup'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _status = newValue;
-                      _statusColor =
-                          (newValue == 'Dibuka') ? Colors.green : Colors.red;
-                    });
-                  },
                 ),
+                SizedBox(height: 16),
+                Text("Batch Magang", style: AppFonts.body),
+                SizedBox(height: 10),
+                if (_batchList.isNotEmpty)
+                  DropdownButtonFormField<String>(
+                    value: _selectedBatch,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _batchList.map((batch) {
+                      return DropdownMenuItem<String>(
+                        value: batch['id'].toString(),
+                        child: Text(batch['name']),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      debugPrint("Selected Batch ID: $newValue");
+                      setState(() {
+                        _selectedBatch = newValue;
+                      });
+                    },
+                  )
+                else
+                  Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 SizedBox(height: 30),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: 129,
-                        height: 45,
-                        decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            borderRadius: BorderRadius.circular(50)),
-                        child: Text(
-                          "Batal",
-                          style: AppFonts.body.white,
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.grayColor,
+                        fixedSize: Size(100, 45),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
                         ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        _saveForm();
+                      onPressed: () {
+                        Navigator.pop(context);
                       },
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: 129,
-                        height: 45,
-                        decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            borderRadius: BorderRadius.circular(50)),
-                        child: Text(
-                          "Simpan",
-                          style: AppFonts.body.white,
+                      child: Text("Batal", style: AppFonts.body),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        fixedSize: Size(100, 45),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
                         ),
                       ),
+                      onPressed: _updateProfile,
+                      child: Text("Simpan", style: AppFonts.body),
                     ),
                   ],
-                ),
-                SizedBox(height: 50),
-                GestureDetector(
-                  onTap: () {},
-                  child: Center(
-                    child: Container(
-                      alignment: Alignment.center,
-                      width: 129,
-                      height: 45,
-                      decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(50)),
-                      child: Text(
-                        "Hapus",
-                        style: AppFonts.body.white,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -202,64 +280,21 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
     );
   }
 
-  // fungsi untuk data picker
-  Widget _buildDateField(
-      {required String label,
-      required TextEditingController controller,
-      required Function onTap}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AppFonts.body),
-        SizedBox(height: 5),
-        TextFormField(
-          controller: controller,
-          readOnly: true,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            suffixIcon: Icon(Icons.calendar_today),
-          ),
-          onTap: () => onTap(),
-        ),
-      ],
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Success"),
+          content: Text("Data saved successfully!"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
-
-  // untuk save data ke container yg baru
-  void _saveForm() {
-    if (_startDate != null && _endDate != null) {
-      Map<String, dynamic> newMagang = {
-        "name": _namaPosisiController.text,  
-        "description": _deskripsiPosisiController.text,  
-        "status": _status,
-        "color": _status == 'Dibuka' ? "green" : "red",
-        "startDate": _startDate,  
-        "endDate": _endDate,     
-      };
-      Navigator.pop(context, newMagang);
-    } else {
-    
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Error"),
-            content: Text("Silakan pilih periode mulai dan akhir."),
-            actions: [
-              TextButton(
-                child: Text("OK"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
 }
-
-
-
-

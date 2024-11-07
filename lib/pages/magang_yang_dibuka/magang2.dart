@@ -5,14 +5,14 @@ import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
-class Magang1 extends StatefulWidget {
-  const Magang1({super.key});
+class Magang2 extends StatefulWidget {
+  const Magang2({super.key});
 
   @override
-  _Magang1State createState() => _Magang1State();
+  _Magang2State createState() => _Magang2State();
 }
 
-class _Magang1State extends State<Magang1> {
+class _Magang2State extends State<Magang2> {
   Map<String, dynamic>? roleData;
   String? errorMessage;
 
@@ -73,12 +73,11 @@ class _Magang1State extends State<Magang1> {
                           height: 144,
                           width: 324,
                           child: Image.network(
-                            roleData!['role_image'] ?? '', // Gambar dari URL API
+                            roleData!['role_image'] ?? '',
                             errorBuilder: (context, error, stackTrace) {
-                              // Tampilkan gambar default jika terjadi error
                               return Image.asset("assets/gedungTelU.png");
                             },
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                         ),
                         SizedBox(height: 40),

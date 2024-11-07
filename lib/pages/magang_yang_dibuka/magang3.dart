@@ -5,14 +5,14 @@ import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
-class Magang1 extends StatefulWidget {
-  const Magang1({super.key});
+class Magang3 extends StatefulWidget {
+  const Magang3({super.key});
 
   @override
-  _Magang1State createState() => _Magang1State();
+  _Magang3State createState() => _Magang3State();
 }
 
-class _Magang1State extends State<Magang1> {
+class _Magang3State extends State<Magang3> {
   Map<String, dynamic>? roleData;
   String? errorMessage;
 
@@ -25,7 +25,7 @@ class _Magang1State extends State<Magang1> {
   Future<void> fetchRoleData() async {
     try {
       final response = await http.get(
-        Uri.parse('https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp/1'),
+        Uri.parse('https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/role-kp/3'),
       );
       debugPrint('Status Code: ${response.statusCode}');
 
