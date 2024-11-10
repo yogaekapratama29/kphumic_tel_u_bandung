@@ -20,7 +20,7 @@ class _TambahFormMagangState extends State<TambahFormMagang> {
   TextEditingController _namaPosisiController = TextEditingController();
   TextEditingController _deskripsiPosisiController = TextEditingController();
   TextEditingController _keahlianController = TextEditingController();
-  TextEditingController _slugController = TextEditingController();
+ 
   File? _roleImage;
 
 @override
@@ -105,8 +105,8 @@ void initState() {
 
     if (_namaPosisiController.text.isEmpty ||
         _deskripsiPosisiController.text.isEmpty ||
-        _keahlianController.text.isEmpty ||
-        _slugController.text.isEmpty) {
+        _keahlianController.text.isEmpty 
+       ) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Please fill in all fields"),
@@ -132,7 +132,7 @@ void initState() {
       final request = http.MultipartRequest('POST', url);
       request.headers['Authorization'] = "Bearer $token";
 
-      request.fields['slug'] = _slugController.text;
+      
       request.fields['name'] = _namaPosisiController.text;
       request.fields['description'] = _deskripsiPosisiController.text;
       request.fields['kualifikasi'] = _keahlianController.text;
@@ -206,16 +206,7 @@ void initState() {
                           ],
                         ),
                       ),
-                      SizedBox(height: 16),
-                      Text("Slug", style: AppFonts.body),
-                      SizedBox(height: 10),
-                      TextFormField(
-                        controller: _slugController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter slug',
-                        ),
-                      ),
+                      
                       SizedBox(height: 16),
                       Text("Posisi", style: AppFonts.body),
                       SizedBox(height: 10),
@@ -261,7 +252,6 @@ else if (_batchList.isEmpty)
     ),
   )
 else
-  // Jika list ada isinya, tampilkan dropdown
   DropdownButtonFormField<String>(
     value: _selectedBatch ?? _batchList[0]['id'].toString(),
     isExpanded: true,

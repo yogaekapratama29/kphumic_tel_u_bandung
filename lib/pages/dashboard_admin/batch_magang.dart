@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/admin_dashboard.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/form_magang.dart';
+import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/isi_batch_magang.dart';
 import 'package:kphumic_tel_u_bandung/pages/dashboard_admin/profile_admin.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
@@ -316,59 +317,64 @@ class _BatchMagangState extends State<BatchMagang> {
               Container(color: AppColors.primary,child: Text("Batch Magang",style: AppFonts.body2.white,textAlign: TextAlign.center,),),
               SizedBox(height: 10,),
               Container(
-                color: AppColors.primary,
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text("Batch", style: TextStyle(color: Colors.white)),
-                    Text("Periode", style: TextStyle(color: Colors.white)),
-                    Text("Action", style: TextStyle(color: Colors.white)),
-                  ],
+                  color: AppColors.primary,
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text("Batch", style: TextStyle(color: Colors.white)),
+                      Text("Periode", style: TextStyle(color: Colors.white)),
+                      Text("Action", style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
                 ),
-              ),
+              
               SizedBox(height: 10),
               _isLoading
                   ? Center(child: CircularProgressIndicator())
                   : Column(
                       children: _batches.map((batch) {
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 15),
-                          decoration: BoxDecoration(
-                            border: Border(
-                                bottom:
-                                    BorderSide(color: Colors.grey.shade300)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(batch.number),
-                              Text("${batch.openedAt} - ${batch.closedAt}"),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: AppColors.primary),
-                                onPressed: () async {
-                                  final String id = batch.batchId;
-                                  final storage = FlutterSecureStorage();
-                                  String? token =
-                                      await storage.read(key: "authToken");
-                                  try {
-                                    final response = await http.delete(
-                                      Uri.parse(
-                                          'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/batch/${id}'),
-                                      headers: {
-                                        'Authorization': 'Bearer $token',
-                                      },
-                                    );
-                                    @override
-                                    void initState() {
-                                      super.initState();
-                                      _fetchBatches();
-                                    }
-                                  } catch (error) {}
-                                },
-                              ),
-                            ],
+                        return GestureDetector(onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => IsiBatchMagang(batchId: batch.batchId)));
+                        },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                  bottom:
+                                      BorderSide(color: Colors.grey.shade300)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(batch.number),
+                                Text("${batch.openedAt} - ${batch.closedAt}"),
+                                IconButton(
+                                  icon: Icon(Icons.delete, color: AppColors.primary),
+                                  onPressed: () async {
+                                    final String id = batch.batchId;
+                                    final storage = FlutterSecureStorage();
+                                    String? token =
+                                        await storage.read(key: "authToken");
+                                    try {
+                                      final response = await http.delete(
+                                        Uri.parse(
+                                            'https://rest-api-penerimaan-kp-humic-5983663108.asia-southeast2.run.app/batch/${id}'),
+                                        headers: {
+                                          'Authorization': 'Bearer $token',
+                                        },
+                                      );
+                                      @override
+                                      void initState() {
+                                        super.initState();
+                                        _fetchBatches();
+                                      }
+                                    } catch (error) {}
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),
