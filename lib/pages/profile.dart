@@ -35,7 +35,7 @@ class _ProfileState extends State<Profile> {
   String? gender;
   String? perguruanTinggi;
   String? profilePicture;
-  String? applicationId;
+  late int applicationId;
   String? status;
   String? applicationDate;
   bool isLoading = true;
