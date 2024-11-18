@@ -1,20 +1,19 @@
 import 'dart:ffi';
-
+import 'package:KP_HUMIC/pages/about_us_page.dart';
+import 'package:KP_HUMIC/pages/edit_profile/profile_form.dart';
+import 'package:KP_HUMIC/pages/main_page.dart';
+import 'package:KP_HUMIC/pages/our_contact.dart';
+import 'package:KP_HUMIC/pages/penerimaan_magang.dart';
+import 'package:KP_HUMIC/pages/started_page.dart';
+import 'package:KP_HUMIC/themes/app_colors.dart';
+import 'package:KP_HUMIC/themes/app_fonts.dart';
+import 'package:KP_HUMIC/themes/app_themes.extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'package:kphumic_tel_u_bandung/pages/about_us_page.dart';
-import 'package:kphumic_tel_u_bandung/pages/edit_profile/profile_form.dart';
-import 'package:kphumic_tel_u_bandung/pages/main_page.dart';
-import 'package:kphumic_tel_u_bandung/pages/our_contact.dart';
-import 'package:kphumic_tel_u_bandung/pages/penerimaan_magang.dart';
-import 'package:kphumic_tel_u_bandung/pages/started_page.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 
 class Profile extends StatefulWidget {
   Profile({Key? key}) : super(key: key);
@@ -36,7 +35,7 @@ class _ProfileState extends State<Profile> {
   String? gender;
   String? perguruanTinggi;
   String? profilePicture;
-  late int applicationId;
+  String? applicationId;
   String? status;
   String? applicationDate;
   bool isLoading = true;
@@ -159,19 +158,29 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      bottomNavigationBar: GNav(
-        activeColor: AppColors.primary,
-        selectedIndex: _selectedIndex,
-        onTabChange: _onItemTapped,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        iconSize: 30,
-        tabs: [
-          GButton(icon: Icons.home_outlined),
-          GButton(icon: Icons.groups_2_outlined),
-          GButton(icon: Icons.badge_outlined),
-          GButton(icon: Icons.call_outlined),
-          GButton(icon: Icons.person_outline),
-        ],
+       bottomNavigationBar: LayoutBuilder(
+        builder: (context, constraints) {
+          double iconSize = constraints.maxWidth < 360 ? 24 : 30;
+
+          return GNav(
+            activeColor: AppColors.primary,
+            selectedIndex: _selectedIndex,
+            onTabChange: _onItemTapped,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            iconSize: iconSize,
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth * 0.03,
+              vertical: 25,
+            ),
+            tabs: [
+              GButton(icon: Icons.home_outlined, iconSize: iconSize),
+              GButton(icon: Icons.groups_2_outlined,  iconSize: iconSize),
+              GButton(icon: Icons.badge_outlined, iconSize: iconSize),
+              GButton(icon: Icons.call_outlined,  iconSize: iconSize),
+              GButton(icon: Icons.person_outline,  iconSize: iconSize),
+            ],
+          );
+        },
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())

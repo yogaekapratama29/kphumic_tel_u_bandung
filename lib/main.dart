@@ -1,6 +1,6 @@
+import 'package:KP_HUMIC/routes/app_routes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:kphumic_tel_u_bandung/routes/app_routes.dart';
 
 void main(){
   runApp(MyApp());

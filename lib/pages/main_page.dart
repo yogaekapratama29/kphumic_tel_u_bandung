@@ -1,15 +1,15 @@
 import 'dart:async';
+import 'package:KP_HUMIC/contents/alur_magang.dart';
+import 'package:KP_HUMIC/contents/main_page_contents.dart';
+import 'package:KP_HUMIC/pages/about_us_page.dart';
+import 'package:KP_HUMIC/pages/our_contact.dart';
+import 'package:KP_HUMIC/pages/penerimaan_magang.dart';
+import 'package:KP_HUMIC/pages/profile.dart';
+import 'package:KP_HUMIC/themes/app_colors.dart';
+import 'package:KP_HUMIC/themes/app_fonts.dart';
+import 'package:KP_HUMIC/themes/app_themes.extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:kphumic_tel_u_bandung/contents/alur_magang.dart';
-import 'package:kphumic_tel_u_bandung/contents/main_page_contents.dart';
-import 'package:kphumic_tel_u_bandung/pages/about_us_page.dart';
-import 'package:kphumic_tel_u_bandung/pages/our_contact.dart';
-import 'package:kphumic_tel_u_bandung/pages/penerimaan_magang.dart';
-import 'package:kphumic_tel_u_bandung/pages/profile.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class MainPage extends StatefulWidget {
@@ -102,19 +102,30 @@ class _MainPageState extends State<MainPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(backgroundColor: AppColors.white,
-      bottomNavigationBar: GNav(
-          activeColor: AppColors.primary,
-          selectedIndex: _selectedIndex,
-          onTabChange: _onItemTapped,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          iconSize: 30,
-          tabs: [
-            GButton(icon: Icons.home_outlined),
-            GButton(icon: Icons.groups_2_outlined),
-            GButton(icon: Icons.badge_outlined),
-            GButton(icon: Icons.call_outlined),
-            GButton(icon: Icons.person_outline),
-          ],),
+      bottomNavigationBar: LayoutBuilder(
+        builder: (context, constraints) {
+          double iconSize = constraints.maxWidth < 360 ? 24 : 30;
+
+          return GNav(
+            activeColor: AppColors.primary,
+            selectedIndex: _selectedIndex,
+            onTabChange: _onItemTapped,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            iconSize: iconSize,
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth * 0.03,
+              vertical: 25,
+            ),
+            tabs: [
+              GButton(icon: Icons.home_outlined, iconSize: iconSize),
+              GButton(icon: Icons.groups_2_outlined,  iconSize: iconSize),
+              GButton(icon: Icons.badge_outlined, iconSize: iconSize),
+              GButton(icon: Icons.call_outlined,  iconSize: iconSize),
+              GButton(icon: Icons.person_outline,  iconSize: iconSize),
+            ],
+          );
+        },
+      ),
       body: SafeArea(
         child: Container(
           width: screenWidth,

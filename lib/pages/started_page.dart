@@ -1,10 +1,11 @@
+import 'package:KP_HUMIC/pages/login_page_admin.dart';
+import 'package:KP_HUMIC/pages/login_page_peserta.dart';
+import 'package:KP_HUMIC/pages/sign_up.dart';
+import 'package:KP_HUMIC/themes/app_colors.dart';
+import 'package:KP_HUMIC/themes/app_fonts.dart';
+import 'package:KP_HUMIC/themes/app_themes.extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:kphumic_tel_u_bandung/pages/login_page_admin.dart';
-import 'package:kphumic_tel_u_bandung/pages/login_page_peserta.dart';
-import 'package:kphumic_tel_u_bandung/pages/sign_up.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
+
 
 class StartedPage extends StatefulWidget {
   const StartedPage({super.key});

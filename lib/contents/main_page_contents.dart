@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
+
 
 class MainPageContents extends StatelessWidget {
   final String image;

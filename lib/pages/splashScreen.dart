@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:KP_HUMIC/routes/app_route_name.dart';
+import 'package:KP_HUMIC/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kphumic_tel_u_bandung/routes/app_route_name.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
 
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});

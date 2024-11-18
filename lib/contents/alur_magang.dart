@@ -1,6 +1,7 @@
+import 'package:KP_HUMIC/themes/app_colors.dart';
+import 'package:KP_HUMIC/themes/app_fonts.dart';
 import 'package:flutter/material.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
+
 
 class AlurMagang extends StatelessWidget {
   @override

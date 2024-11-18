@@ -6,9 +6,9 @@
 
 
     <application
-        android:label="kphumic_tel_u_bandung"
+        android:label="HUMIC Engineering"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/splash">
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,13 +1,14 @@
+import 'package:KP_HUMIC/pages/login_page_admin.dart';
+import 'package:KP_HUMIC/pages/login_page_peserta.dart';
+import 'package:KP_HUMIC/pages/main_page.dart';
+import 'package:KP_HUMIC/pages/sign_up.dart';
+import 'package:KP_HUMIC/pages/splashScreen.dart';
+import 'package:KP_HUMIC/pages/started_page.dart';
+import 'package:KP_HUMIC/routes/app_route_name.dart';
+import 'package:KP_HUMIC/routes/app_route_paths.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
-import 'package:kphumic_tel_u_bandung/pages/login_page_admin.dart';
-import 'package:kphumic_tel_u_bandung/pages/login_page_peserta.dart';
-import 'package:kphumic_tel_u_bandung/pages/main_page.dart';
-import 'package:kphumic_tel_u_bandung/pages/sign_up.dart';
-import 'package:kphumic_tel_u_bandung/pages/splashScreen.dart';
-import 'package:kphumic_tel_u_bandung/pages/started_page.dart';
-import 'package:kphumic_tel_u_bandung/routes/app_route_name.dart';
-import 'package:kphumic_tel_u_bandung/routes/app_route_paths.dart';
+
 
 class AppRoutes {
   static List<GoRoute> routes = [

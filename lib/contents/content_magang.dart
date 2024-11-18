@@ -1,7 +1,8 @@
+import 'package:KP_HUMIC/themes/app_colors.dart';
+import 'package:KP_HUMIC/themes/app_fonts.dart';
+import 'package:KP_HUMIC/themes/app_themes.extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_colors.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_fonts.dart';
-import 'package:kphumic_tel_u_bandung/themes/app_themes.extensions.dart';
+
 
 class ContentMagang extends StatelessWidget {
   const ContentMagang({super.key});
